@@ -35,6 +35,32 @@ public:
 	UPROPERTY(EditAnywhere)
 	float canTakeGunDist = 200;
 
+	// 총을 집고 있는지 여부
+	bool hasGun;
+	// 집은 총 담을 변수
+	UPROPERTY()
+	class AGun* ownedGun;
+
 	// 총 집기 / 놓기 함수
 	void TakeGun();
+	// 총을 붙이는 함수
+	void AttachGun();
+	// 총을 버리는 함수
+	void DetachGun(class AGun* gun);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
