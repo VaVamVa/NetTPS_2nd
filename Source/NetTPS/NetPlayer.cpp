@@ -38,6 +38,30 @@ void ANetPlayer::SetupPlayerInputComponent(
 	{
 		// 총 집기/ 놓기 Input 발생했을 때 호출되는 함수 등록
 		enhancedInputComponent->BindAction(takeGunAction, ETriggerEvent::Started, this, &ANetPlayer::TakeGun);
+		// 총 쏘기 Input 발생했을 때 호출되는 함수 등록
+		enhancedInputComponent->BindAction(fireAction, ETriggerEvent::Started, this, &ANetPlayer::Fire);
+		// 재장전 Input 발생했을 때 호출되는 함수 등록
+		enhancedInputComponent->BindAction(reloadAction, ETriggerEvent::Started, this, &ANetPlayer::Reload);
+	}
+}
+
+void ANetPlayer::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	// 누르고 있을 때
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::J))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("J 키 누르고 있음"));
+	}
+	// 눌렀을 때
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::J))
+    {
+    	UE_LOG(LogTemp, Warning, TEXT("J 키 눌렀을 때"));
+    }
+	// 떼었을 때
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustReleased(EKeys::J))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("J 키 떼었을 때"));
 	}
 }
 
@@ -122,6 +146,18 @@ void ANetPlayer::ChangeCameraBoomSetting()
 	CameraBoom->SetRelativeLocation(hasGun ? cameraBoomLocationWithGun : cameraBoomLocationWithoutGun);
 	// TargetArmLength 수정
 	CameraBoom->TargetArmLength = hasGun ? targetArmLengthWithGun : targetArmLengthWithoutGun;
+}
+
+void ANetPlayer::Fire()
+{
+	// 만약에 총을 들고있지 않으면 함수를 나가자.
+	if (hasGun == false) return;
+	// 총 쏘는 애니메이션 실행
+	PlayAnimMontage(playerMontage, 1.0f, FName(TEXT("Fire")));
+}
+
+void ANetPlayer::Reload()
+{
 }
 
 

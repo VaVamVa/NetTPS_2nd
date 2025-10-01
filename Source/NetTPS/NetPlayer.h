@@ -20,6 +20,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual void Tick(float DeltaSeconds) override;
 	
 public:
 	// 총 집기, 놓기 InputAction
@@ -59,6 +60,21 @@ public:
 	float targetArmLengthWithoutGun = 400;
 	// 총 집었는지 여부에 따라 CameraBoom 설정 변경 함수
 	void ChangeCameraBoomSetting();
+
+
+	// Player Montage
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* playerMontage;
+	// 총 쏘기 InputAction
+	UPROPERTY(EditAnywhere, Category=Input)
+	class UInputAction* fireAction;
+	// 재장전 InputAction
+	UPROPERTY(EditAnywhere, Category=Input)
+	class UInputAction* reloadAction;
+	// 총 쏘기 함수
+	void Fire();
+	// 재장전 함수
+	void Reload();
 };
 
 
