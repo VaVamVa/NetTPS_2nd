@@ -31,4 +31,19 @@ public:
 	// 수평 이동 속력
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float groundSpeed;
+	// 좌우 이동에 따른 값
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float dirH;
+	// 앞뒤 이동에 따른 값
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float dirV;
+	// 총을 들었는지 여부
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool hasGun;
+
+	// Aim 의 Picth, Yaw 값
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float pitchAngle;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float yawAngle;
 };

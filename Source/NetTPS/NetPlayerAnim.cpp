@@ -26,5 +26,16 @@ void UNetPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		groundSpeed = velocity.Size2D();
 		// 공중 여부 설정
 		isAir = pawnOwner->GetMovementComponent()->IsFalling();
+		// 총 들고있는지 여부 설정
+		hasGun = pawnOwner->hasGun;
+		// 앞뒤 이동에 따른 값 설정
+		FVector v = velocity;
+		v.Z = 0;
+		dirV = FVector::DotProduct(pawnOwner->GetActorForwardVector(), v);
+		// 좌우 이동에 따른 값 설정
+		dirH = FVector::DotProduct(pawnOwner->GetActorRightVector(), v);
+		// 총을 들고 있을 때와 놓고 있을 때 pitchAngle, yawAngle 설정
+		pitchAngle = hasGun ? -pawnOwner->GetBaseAimRotation().Pitch : 0;
+		yawAngle = hasGun ? 20 : 0;
 	}
 }

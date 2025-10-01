@@ -5,7 +5,10 @@
 
 #include "EnhancedInputComponent.h"
 #include "Gun.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+
 
 ANetPlayer::ANetPlayer()
 {
@@ -13,6 +16,9 @@ ANetPlayer::ANetPlayer()
 	compGun = CreateDefaultSubobject<USceneComponent>(TEXT("GUN"));
 	compGun->SetupAttachment(GetMesh(), TEXT("weapon_l"));
 	compGun->SetRelativeLocation(FVector(0, 7, 5.5f));
+
+	// CameraBoom 초기 위치 설정
+	CameraBoom->SetRelativeLocation(cameraBoomLocationWithoutGun);
 }
 
 void ANetPlayer::BeginPlay()
@@ -88,7 +94,9 @@ void ANetPlayer::AttachGun()
 	UStaticMeshComponent* comp = ownedGun->GetComponentByClass<UStaticMeshComponent>();
 	comp->SetSimulatePhysics(false);
 	// compGun 에 총을 붙이자.
-	ownedGun->AttachToComponent(compGun, FAttachmentTransformRules::SnapToTargetNotIncludingScale);	
+	ownedGun->AttachToComponent(compGun, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	// 총 집었는지 여부에 따라 CameraBoom 설정 변경
+	ChangeCameraBoomSetting();
 }
 
 void ANetPlayer::DetachGun(AGun* gun)
@@ -99,7 +107,21 @@ void ANetPlayer::DetachGun(AGun* gun)
 	UStaticMeshComponent* comp = gun->GetComponentByClass<UStaticMeshComponent>();
 	comp->SetSimulatePhysics(true);
 	// compGun 에서 총을 떼어내자.
-	gun->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform); 
+	gun->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	// 총 집었는지 여부에 따라 CameraBoom 설정 변경
+	ChangeCameraBoomSetting();
+}
+
+void ANetPlayer::ChangeCameraBoomSetting()
+{
+	// 이동 방향으로 모델 돌아가게 하기 / 하지 않기
+	GetCharacterMovement()->bOrientRotationToMovement = !hasGun;
+	// 카메라 회전에 따라 캐릭터 Yaw 회전 하기 / 하지 않기
+	bUseControllerRotationYaw = hasGun;
+	// CameraBoom 위치 수정
+	CameraBoom->SetRelativeLocation(hasGun ? cameraBoomLocationWithGun : cameraBoomLocationWithoutGun);
+	// TargetArmLength 수정
+	CameraBoom->TargetArmLength = hasGun ? targetArmLengthWithGun : targetArmLengthWithoutGun;
 }
 
 

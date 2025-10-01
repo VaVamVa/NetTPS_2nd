@@ -47,6 +47,18 @@ public:
 	void AttachGun();
 	// 총을 버리는 함수
 	void DetachGun(class AGun* gun);
+
+
+	// 총 집었을 때 CameraBoom 위치
+	FVector cameraBoomLocationWithGun = FVector(0, 70, 110);
+	// 총 집었을 때 Target Arm Length
+	float targetArmLengthWithGun = 160;
+	// 총 놓았을 때 CameraBoom 위치
+	FVector cameraBoomLocationWithoutGun = FVector(0, 0, 110);
+	// 총 놓았을 때 Target Arm Length
+	float targetArmLengthWithoutGun = 400;
+	// 총 집었는지 여부에 따라 CameraBoom 설정 변경 함수
+	void ChangeCameraBoomSetting();
 };
 
 
