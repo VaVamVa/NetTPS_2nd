@@ -8,6 +8,11 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "MainWidget.h"
+#include "Camera/CameraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Kismet/KismetMaterialLibrary.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 ANetPlayer::ANetPlayer()
@@ -16,9 +21,6 @@ ANetPlayer::ANetPlayer()
 	compGun = CreateDefaultSubobject<USceneComponent>(TEXT("GUN"));
 	compGun->SetupAttachment(GetMesh(), TEXT("weapon_l"));
 	compGun->SetRelativeLocation(FVector(0, 7, 5.5f));
-
-	// CameraBoom 초기 위치 설정
-	CameraBoom->SetRelativeLocation(cameraBoomLocationWithoutGun);
 }
 
 void ANetPlayer::BeginPlay()
@@ -27,6 +29,13 @@ void ANetPlayer::BeginPlay()
 
 	// Level 에 있는 모든 총을 찾자.
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGun::StaticClass(), allGun);
+
+	// Main UI 를 만들자.
+	mainUI = CreateWidget<UMainWidget>(GetWorld(), mainWidget);
+	mainUI->AddToViewport();
+
+	// CameraBoom 초기 위치 설정
+	CameraBoom->SetRelativeLocation(cameraBoomLocationWithoutGun);
 }
 
 void ANetPlayer::SetupPlayerInputComponent(
@@ -122,6 +131,10 @@ void ANetPlayer::AttachGun()
 	ownedGun->AttachToComponent(compGun, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	// 총 집었는지 여부에 따라 CameraBoom 설정 변경
 	ChangeCameraBoomSetting();
+	// 총알 UI를 총에 들어있는 총알 갯수만큼 채우자.
+	mainUI->AddBullet(ownedGun->GetBulletCount());
+	// Crosshair 활성
+	mainUI->ShowCrosshair(true);
 }
 
 void ANetPlayer::DetachGun(AGun* gun)
@@ -135,6 +148,10 @@ void ANetPlayer::DetachGun(AGun* gun)
 	gun->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	// 총 집었는지 여부에 따라 CameraBoom 설정 변경
 	ChangeCameraBoomSetting();
+	// 총알 UI 모두 지우자
+	mainUI->PopBulletAll();
+	// Crosshair 비활성
+	mainUI->ShowCrosshair(false);
 }
 
 void ANetPlayer::ChangeCameraBoomSetting()
@@ -162,7 +179,37 @@ void ANetPlayer::Fire()
 	PlayAnimMontage(playerMontage, 1.0f, FName(TEXT("Fire")));
 	// 총알 갯수 하나 제거
 	ownedGun->PopBullet();
-	UE_LOG(LogTemp, Warning, TEXT("현재 총알 갯수 : %d"), ownedGun->GetBulletCount());
+	// 총알 UI 하나 제거
+	mainUI->PopBullet();
+
+	// 시작 지점
+	FVector startPos = FollowCamera->GetComponentLocation();
+	// 종료 지점
+	FVector endPos = startPos + FollowCamera->GetForwardVector() * 100000;
+	// 그 외 옵션
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	// 부딪혔을 때 그 정보를 담을 변수
+	FHitResult hitInfo;
+	// LineTrace 실행
+	bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
+	// 어딘가에 부딪혔다면
+	if (bHit)
+	{
+		// UKismetMathLibrary::GetReflectionVector()
+		// 입사각
+		FVector inVector = endPos - startPos;
+		// 법선벡터 (노멀벡터)
+		FVector normalVector = hitInfo.Normal;
+		// 반사각 계산
+		float dot = FVector::DotProduct(inVector, normalVector);
+		FVector outVector = inVector - 2 * dot * normalVector;
+		// 반사각으로 파티클 효과가 재생되게 각도 구하자.
+		FRotator rot = UKismetMathLibrary::MakeRotFromX(outVector);
+		
+		// 맞은 지점에 파티클 효과 표현
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), hitEffect, hitInfo.Location, rot);
+	}
 }
 
 void ANetPlayer::Reload()
@@ -186,7 +233,8 @@ void ANetPlayer::OnReloadComplete()
 	isReload = false;
 	// 총알 가득 채우자.
 	ownedGun->FillBullet();
-	UE_LOG(LogTemp, Warning, TEXT("재장전 완료"));
+	// 총알 UI 가득 채우자
+	mainUI->AddBullet(ownedGun->GetBulletCount());
 }
 
 

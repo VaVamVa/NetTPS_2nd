@@ -80,6 +80,18 @@ public:
 	bool isReload;
 	// 재장전 완료 함수
 	void OnReloadComplete();
+
+	// WBP_Main 담을 변수
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UMainWidget> mainWidget;
+	// 생성 된 WBP_Main 담을 변수
+	UPROPERTY()
+	class UMainWidget* mainUI;
+
+
+	// 총 맞은 곳 Effect
+	UPROPERTY(EditAnywhere)
+	class UNiagaraSystem* hitEffect;
 };
 
 
