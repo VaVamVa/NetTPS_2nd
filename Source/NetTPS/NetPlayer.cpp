@@ -99,7 +99,8 @@ void ANetPlayer::TakeGun()
 			AttachGun();
 		}
 	}
-	else
+	// 총을 들고 있고, 재장전 중이 아니라면
+	else if (isReload == false)
 	{
 		// ownedGun 을 담을 임시변수
 		AGun* tempGun = ownedGun;
@@ -152,12 +153,40 @@ void ANetPlayer::Fire()
 {
 	// 만약에 총을 들고있지 않으면 함수를 나가자.
 	if (hasGun == false) return;
+	// 총알이 없으면 함수를 나가자.
+	if (ownedGun->GetBulletCount() <= 0) return;
+	// 만약에 재장전 중이면 함수를 나가자.
+	if (isReload) return;
+	
 	// 총 쏘는 애니메이션 실행
 	PlayAnimMontage(playerMontage, 1.0f, FName(TEXT("Fire")));
+	// 총알 갯수 하나 제거
+	ownedGun->PopBullet();
+	UE_LOG(LogTemp, Warning, TEXT("현재 총알 갯수 : %d"), ownedGun->GetBulletCount());
 }
 
 void ANetPlayer::Reload()
 {
+	// 만약에 총을 들고있지 않으면 함수를 나가자.
+	if (hasGun == false) return;
+	// 총알이 가득 차 있다면 함수를 나가자.
+	if (ownedGun->IsFillBullet()) return;
+	// 만약에 재장전 중이면 함수를 나가자.
+	if (isReload) return;
+
+	// 재장전 중으로 설정
+	isReload = true;	
+	// 재장전 애니메이션 실행
+	PlayAnimMontage(playerMontage, 1.0f, FName(TEXT("Reload")));
+}
+
+void ANetPlayer::OnReloadComplete()
+{
+	// 재장전 끝 설정
+	isReload = false;
+	// 총알 가득 채우자.
+	ownedGun->FillBullet();
+	UE_LOG(LogTemp, Warning, TEXT("재장전 완료"));
 }
 
 

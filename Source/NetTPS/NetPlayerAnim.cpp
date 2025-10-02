@@ -39,3 +39,12 @@ void UNetPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		yawAngle = hasGun ? 20 : 0;
 	}
 }
+
+void UNetPlayerAnim::AnimNotify_OnReloadComplete()
+{
+	if (pawnOwner)
+	{
+		// 소유 Pawn 의 재장전 완료 함수 호출
+		pawnOwner->OnReloadComplete();
+	}
+}

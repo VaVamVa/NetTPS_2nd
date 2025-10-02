@@ -75,6 +75,11 @@ public:
 	void Fire();
 	// 재장전 함수
 	void Reload();
+
+	// 재장전 중 인지
+	bool isReload;
+	// 재장전 완료 함수
+	void OnReloadComplete();
 };
 
 

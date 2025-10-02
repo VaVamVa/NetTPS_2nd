@@ -46,4 +46,8 @@ public:
 	float pitchAngle;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float yawAngle;
+
+	// 재장전 애니메이션 끝날때 호출되는 이벤트 함수
+	UFUNCTION()
+	void AnimNotify_OnReloadComplete();
 };
