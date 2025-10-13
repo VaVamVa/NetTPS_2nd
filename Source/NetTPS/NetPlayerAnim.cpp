@@ -50,3 +50,15 @@ void UNetPlayerAnim::AnimNotify_OnReloadComplete()
 		pawnOwner->OnReloadComplete();
 	}
 }
+
+void UNetPlayerAnim::AnimNotify_OnCombo()
+{
+	if (pawnOwner == nullptr) return;
+	pawnOwner->OnCombo();
+}
+
+void UNetPlayerAnim::AnimNotify_OnFireComplete()
+{
+	if (pawnOwner == nullptr) return;
+	pawnOwner->OnFireComplete();
+}

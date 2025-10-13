@@ -103,6 +103,19 @@ public:
 
 	// 죽었는지 여부
 	bool isDie;
+
+	// 공격 시작 여부
+	bool isFire;
+	// 콤보 동작 여부
+	bool isCombo;
+	// 콤보 카운트
+	int32 comboCnt;
+	// 콤보가 진행될지 판단하는 함수
+	void OnCombo();
+	// 공격 마무리 (콤보 끊김 or 콤보 마지막 공격)
+	void OnFireComplete();
+	// 공격 액션
+	void FireAction();
 };
 
 

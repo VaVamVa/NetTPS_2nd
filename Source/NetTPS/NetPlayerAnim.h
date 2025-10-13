@@ -54,4 +54,11 @@ public:
 	// 죽었는지 여부
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool isDie;
+
+	// 콤보 체크 Notify 함수
+	UFUNCTION()
+	void AnimNotify_OnCombo();
+	// 공격 마무리 Notify 함수
+	UFUNCTION()
+	void AnimNotify_OnFireComplete();
 };

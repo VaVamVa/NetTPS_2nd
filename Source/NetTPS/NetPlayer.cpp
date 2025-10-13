@@ -158,6 +158,8 @@ void ANetPlayer::DetachGun(AGun* gun)
 	mainUI->PopBulletAll();
 	// Crosshair 비활성
 	mainUI->ShowCrosshair(false);
+	// 공격 상태 초기화
+	OnFireComplete();
 }
 
 void ANetPlayer::ChangeCameraBoomSetting()
@@ -180,9 +182,97 @@ void ANetPlayer::Fire()
 	if (ownedGun->GetBulletCount() <= 0) return;
 	// 만약에 재장전 중이면 함수를 나가자.
 	if (isReload) return;
-	
+
+	// 만약에 공격 중이라면
+	if (isFire)
+	{
+		// 콤보 연결
+		isCombo = true;
+	}
+	else
+	{
+		// 공격 상태로 설정
+		isFire = true;
+		// 공격 실행
+		FireAction();
+	}
+}
+
+void ANetPlayer::Reload()
+{
+	// 만약에 총을 들고있지 않으면 함수를 나가자.
+	if (hasGun == false) return;
+	// 총알이 가득 차 있다면 함수를 나가자.
+	if (ownedGun->IsFillBullet()) return;
+	// 만약에 재장전 중이면 함수를 나가자.
+	if (isReload) return;
+	// 만약에 공격 중이면 함수를 나가자.
+	if (isFire) return;
+
+	// 재장전 중으로 설정
+	isReload = true;	
+	// 재장전 애니메이션 실행
+	PlayAnimMontage(playerMontage, 1.0f, FName(TEXT("Reload")));
+}
+
+void ANetPlayer::OnReloadComplete()
+{
+	// 재장전 끝 설정
+	isReload = false;
+	// 총알 가득 채우자.
+	ownedGun->FillBullet();
+	// 총알 UI 가득 채우자
+	mainUI->AddBullet(ownedGun->GetBulletCount());
+}
+
+void ANetPlayer::DamageProcess(float damage)
+{
+	// 내가 컨트롤 하고 있지 않은 Player
+	// 머리 위에 있는 HPBar 가져오자.
+	UHPBar* hpBar = Cast<UHPBar>(compHP->GetWidget());
+	// 머리 위에 있는 HPBar 갱신
+	float currHP = hpBar->UpdateHP(damage);
+	// 내가 컨트롤 하고 있는 Player
+	// MainUI 에 있는 HPBar 갱신
+	mainUI->hpBarUI->UpdateHP(damage);
+	// 죽었는지 여부 설정
+	isDie = currHP <= 0;
+}
+
+void ANetPlayer::BillboardHPBar()
+{
+	// 내가 컨트롤하고 있는 카메라를 가져오자.
+	AActor* cam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	// 카메라의 앞 방향 (반대), 윗 방향을 이용해서 Rotator 를 구하자.
+	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(-cam->GetActorForwardVector(), cam->GetActorUpVector());
+	// 구한 Rotator 를 comHP 에 설정
+	compHP->SetWorldRotation(rot);
+}
+
+void ANetPlayer::OnCombo()
+{
+	// 콤보 키를 누르지 않았다면 함수를 나가자.
+	if (isCombo == false) return;
+	// 다음 콤보 체크를 위해서 isCombo false
+	isCombo = false;
+	// 콤보 카운트 증가
+	comboCnt++;
+	// 공격 액션
+	FireAction();
+}
+
+void ANetPlayer::OnFireComplete()
+{
+	// 콤보 관련 변수 초기화
+	isFire = isCombo = false;
+	comboCnt = 0;
+}
+
+void ANetPlayer::FireAction()
+{
 	// 총 쏘는 애니메이션 실행
-	PlayAnimMontage(playerMontage, 1.0f, FName(TEXT("Fire")));
+	FString fireName = FString::Printf(TEXT("Fire_%d"), comboCnt);
+	PlayAnimMontage(playerMontage, 1.0f, FName(fireName));
 	// 총알 갯수 하나 제거
 	ownedGun->PopBullet();
 	// 총알 UI 하나 제거
@@ -225,55 +315,6 @@ void ANetPlayer::Fire()
 			mainUI->ShowDamageUI();
 		}
 	}
-}
-
-void ANetPlayer::Reload()
-{
-	// 만약에 총을 들고있지 않으면 함수를 나가자.
-	if (hasGun == false) return;
-	// 총알이 가득 차 있다면 함수를 나가자.
-	if (ownedGun->IsFillBullet()) return;
-	// 만약에 재장전 중이면 함수를 나가자.
-	if (isReload) return;
-
-	// 재장전 중으로 설정
-	isReload = true;	
-	// 재장전 애니메이션 실행
-	PlayAnimMontage(playerMontage, 1.0f, FName(TEXT("Reload")));
-}
-
-void ANetPlayer::OnReloadComplete()
-{
-	// 재장전 끝 설정
-	isReload = false;
-	// 총알 가득 채우자.
-	ownedGun->FillBullet();
-	// 총알 UI 가득 채우자
-	mainUI->AddBullet(ownedGun->GetBulletCount());
-}
-
-void ANetPlayer::DamageProcess(float damage)
-{
-	// 내가 컨트롤 하고 있지 않은 Player
-	// 머리 위에 있는 HPBar 가져오자.
-	UHPBar* hpBar = Cast<UHPBar>(compHP->GetWidget());
-	// 머리 위에 있는 HPBar 갱신
-	float currHP = hpBar->UpdateHP(damage);
-	// 내가 컨트롤 하고 있는 Player
-	// MainUI 에 있는 HPBar 갱신
-	mainUI->hpBarUI->UpdateHP(damage);
-	// 죽었는지 여부 설정
-	isDie = currHP <= 0;
-}
-
-void ANetPlayer::BillboardHPBar()
-{
-	// 내가 컨트롤하고 있는 카메라를 가져오자.
-	AActor* cam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-	// 카메라의 앞 방향 (반대), 윗 방향을 이용해서 Rotator 를 구하자.
-	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(-cam->GetActorForwardVector(), cam->GetActorUpVector());
-	// 구한 Rotator 를 comHP 에 설정
-	compHP->SetWorldRotation(rot);
 }
 
 
