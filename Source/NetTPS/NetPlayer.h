@@ -92,6 +92,12 @@ public:
 	// 총 맞은 곳 Effect
 	UPROPERTY(EditAnywhere)
 	class UNiagaraSystem* hitEffect;
+
+	// HPBar Widget 설정 할 Component
+	UPROPERTY(EditAnywhere)
+	class UWidgetComponent* compHP;
+	// 데미지 받았을 때 호출되는 함수
+	void DamageProcess(float damage);
 };
 
 

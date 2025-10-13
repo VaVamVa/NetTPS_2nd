@@ -34,4 +34,8 @@ public:
 	class UImage* crosshair;
 	// crosshair 활성/비활성 하는 함수
 	void ShowCrosshair(bool show);
+
+	// HPBarUI 담을 변수
+	UPROPERTY(meta=(BindWidget))
+	class UHPBar* hpBarUI;
 };

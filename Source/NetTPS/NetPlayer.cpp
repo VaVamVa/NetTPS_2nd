@@ -5,15 +5,15 @@
 
 #include "EnhancedInputComponent.h"
 #include "Gun.h"
+#include "HPBar.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "MainWidget.h"
 #include "Camera/CameraComponent.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Kismet/KismetMaterialLibrary.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/KismetMathLibrary.h"
-
 
 ANetPlayer::ANetPlayer()
 {
@@ -21,6 +21,10 @@ ANetPlayer::ANetPlayer()
 	compGun = CreateDefaultSubobject<USceneComponent>(TEXT("GUN"));
 	compGun->SetupAttachment(GetMesh(), TEXT("weapon_l"));
 	compGun->SetRelativeLocation(FVector(0, 7, 5.5f));
+
+	// HPBar Widget Component
+	compHP = CreateDefaultSubobject<UWidgetComponent>(TEXT("HP"));
+	compHP->SetupAttachment(RootComponent);
 }
 
 void ANetPlayer::BeginPlay()
@@ -209,6 +213,13 @@ void ANetPlayer::Fire()
 		
 		// 맞은 지점에 파티클 효과 표현
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), hitEffect, hitInfo.Location, rot);
+
+		// 만약 맞은 Actor 가 NetPlayer 라면
+		if (ANetPlayer* player = Cast<ANetPlayer>(hitInfo.GetActor()))
+		{
+			// 데미지 처리 하자.
+			player->DamageProcess(20);
+		}
 	}
 }
 
@@ -235,6 +246,19 @@ void ANetPlayer::OnReloadComplete()
 	ownedGun->FillBullet();
 	// 총알 UI 가득 채우자
 	mainUI->AddBullet(ownedGun->GetBulletCount());
+}
+
+void ANetPlayer::DamageProcess(float damage)
+{
+	// 내가 컨트롤 하고 있지 않은 Player
+	// 머리 위에 있는 HPBar 가져오자.
+	UHPBar* hpBar = Cast<UHPBar>(compHP->GetWidget());
+	// 머리 위에 있는 HPBar 갱신
+	hpBar->UpdateHP(damage);
+
+	// 내가 컨트롤 하고 있는 Player
+	// MainUI 에 있는 HPBar 갱신
+	mainUI->hpBarUI->UpdateHP(damage);
 }
 
 
