@@ -76,6 +76,8 @@ void ANetPlayer::Tick(float DeltaSeconds)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("J 키 떼었을 때"));
 	}
+
+	BillboardHPBar();
 }
 
 void ANetPlayer::TakeGun()
@@ -219,6 +221,8 @@ void ANetPlayer::Fire()
 		{
 			// 데미지 처리 하자.
 			player->DamageProcess(20);
+			// Damage UI 보이게
+			mainUI->ShowDamageUI();
 		}
 	}
 }
@@ -254,11 +258,22 @@ void ANetPlayer::DamageProcess(float damage)
 	// 머리 위에 있는 HPBar 가져오자.
 	UHPBar* hpBar = Cast<UHPBar>(compHP->GetWidget());
 	// 머리 위에 있는 HPBar 갱신
-	hpBar->UpdateHP(damage);
-
+	float currHP = hpBar->UpdateHP(damage);
 	// 내가 컨트롤 하고 있는 Player
 	// MainUI 에 있는 HPBar 갱신
 	mainUI->hpBarUI->UpdateHP(damage);
+	// 죽었는지 여부 설정
+	isDie = currHP <= 0;
+}
+
+void ANetPlayer::BillboardHPBar()
+{
+	// 내가 컨트롤하고 있는 카메라를 가져오자.
+	AActor* cam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	// 카메라의 앞 방향 (반대), 윗 방향을 이용해서 Rotator 를 구하자.
+	FRotator rot = UKismetMathLibrary::MakeRotFromXZ(-cam->GetActorForwardVector(), cam->GetActorUpVector());
+	// 구한 Rotator 를 comHP 에 설정
+	compHP->SetWorldRotation(rot);
 }
 
 

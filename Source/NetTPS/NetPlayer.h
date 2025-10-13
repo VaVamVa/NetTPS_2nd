@@ -98,7 +98,14 @@ public:
 	class UWidgetComponent* compHP;
 	// 데미지 받았을 때 호출되는 함수
 	void DamageProcess(float damage);
+	// 머리 위 HPBar 가 항상 카메라를 바라보게 하는 함수
+	void BillboardHPBar();
+
+	// 죽었는지 여부
+	bool isDie;
 };
+
+
 
 
 

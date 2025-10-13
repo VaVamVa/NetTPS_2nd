@@ -37,6 +37,8 @@ void UNetPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
 		// 총을 들고 있을 때와 놓고 있을 때 pitchAngle, yawAngle 설정
 		pitchAngle = hasGun ? -pawnOwner->GetBaseAimRotation().Pitch : 0;
 		yawAngle = hasGun ? 20 : 0;
+		// 죽었는지 여부 설정
+		isDie = pawnOwner->isDie;
 	}
 }
 

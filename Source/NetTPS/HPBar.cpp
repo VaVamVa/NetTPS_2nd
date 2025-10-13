@@ -5,7 +5,7 @@
 
 #include "Components/ProgressBar.h"
 
-void UHPBar::UpdateHP(float damage)
+float UHPBar::UpdateHP(float damage)
 {
 	// 현재 HP 를 damage 만큼 줄이자.
 	currHP -= damage;
@@ -13,4 +13,7 @@ void UHPBar::UpdateHP(float damage)
 	float percent = currHP / maxHP;
 	// 계산한 값을 hpBar 에 설정
 	hpBar->SetPercent(percent);
+
+	// 현재 HP 을 반환
+	return currHP;
 }

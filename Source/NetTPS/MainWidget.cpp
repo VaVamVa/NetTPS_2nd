@@ -37,3 +37,24 @@ void UMainWidget::ShowCrosshair(bool show)
 	// show 값에 따라서 crosshair 활성 / 비활성
 	crosshair->SetVisibility(show ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 }
+
+void UMainWidget::ShowDamageUI()
+{
+	damageUIOpacity = 1;
+}
+
+void UMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// 만약에 damageUIOpacity 값이 0 보다 크면
+	if (damageUIOpacity > 0)
+	{
+		// damageUIOpacity 값을 줄이자.
+		damageUIOpacity -= InDeltaTime * 3;
+		// 0 보다 작게 만들지 말자.
+		damageUIOpacity = FMath::Max(damageUIOpacity, 0);
+		// damageUIOpacity 으로 damageUI 의 RenderOpacity 값 설정
+		damageUI->SetRenderOpacity(damageUIOpacity);
+	}
+}

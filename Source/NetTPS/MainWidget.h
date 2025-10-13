@@ -38,4 +38,13 @@ public:
 	// HPBarUI 담을 변수
 	UPROPERTY(meta=(BindWidget))
 	class UHPBar* hpBarUI;
+
+	// DamageUI 담을 변수
+	UPROPERTY(meta=(BindWidget))
+	class UImage* damageUI;
+	// DamageUI 의 Opacity 값
+	float damageUIOpacity;
+	// DamageUI 보이게 하는 함수
+	void ShowDamageUI();
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 };

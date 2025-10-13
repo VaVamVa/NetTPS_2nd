@@ -23,5 +23,5 @@ public:
 	// 현재 HP
 	float currHP = maxHP;
 	// 현재 HP 갱신 함수
-	void UpdateHP(float damage);
+	float UpdateHP(float damage);
 };
