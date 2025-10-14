@@ -78,6 +78,8 @@ void ANetPlayer::Tick(float DeltaSeconds)
 	}
 
 	BillboardHPBar();
+
+	PrintNetLog();
 }
 
 void ANetPlayer::TakeGun()
@@ -315,6 +317,28 @@ void ANetPlayer::FireAction()
 			mainUI->ShowDamageUI();
 		}
 	}
+}
+
+void ANetPlayer::PrintNetLog()
+{
+	// NetConnection 상태
+	FString connStr = GetNetConnection() != nullptr ? TEXT("Valid Connection") : TEXT("Invalid Connection");
+	// Owner 상태
+	FString ownerStr = GetOwner() != nullptr ? GetOwner()->GetActorNameOrLabel() : TEXT("Invalid Owner");
+	// 내 것인지 / 남의 것인지
+	FString mineStr = IsLocallyControlled() ? TEXT("내 것") : TEXT("남의 것");
+	// role
+	// LOCAL : 내 입장에 보는 Role
+	// REMOTE : [서버] 에서는 이 액터가 클라이언트에서는 *** 으로 Role 설정되어있다.
+	//			[클라] 에서는 이 액터가 서버에서는 *** 으로 Role 설정되어있다
+	FString roleStr = FString::Printf(TEXT("LOCAL : %s, REMOTE : %s"),
+		*UEnum::GetValueAsString<ENetRole>(GetLocalRole()),
+		*UEnum::GetValueAsString<ENetRole>(GetRemoteRole()));
+	
+	FString logStr = FString::Printf(TEXT("Connection : %s\r\nOwner : %s\r\nMine : %s\r\nRole : %s"),
+		*connStr, *ownerStr, *mineStr, *roleStr);
+
+	DrawDebugString(GetWorld(), GetActorLocation(), logStr, nullptr, FColor::Yellow, 0, true);
 }
 
 

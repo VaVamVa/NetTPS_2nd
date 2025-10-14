@@ -116,6 +116,9 @@ public:
 	void OnFireComplete();
 	// 공격 액션
 	void FireAction();
+
+	// 서버 연결 상태 및 Onwer 설정 출력
+	void PrintNetLog();
 };
 
 
