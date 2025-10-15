@@ -21,6 +21,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
 public:
 	// 총 집기, 놓기 InputAction
@@ -39,13 +40,20 @@ public:
 	// 총을 집고 있는지 여부
 	bool hasGun;
 	// 집은 총 담을 변수
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing=AttachGun)
 	class AGun* ownedGun;
 
 	// 총 집기 / 놓기 함수
 	void TakeGun();
+	// [서버] 에게 총 집기 / 놓기 해달라고 요청
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_TakeGun();
 	// 총을 붙이는 함수
+	UFUNCTION()
 	void AttachGun();
+	// 모든 [클라] 에게 총 탈착 요청 함수
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_DetachGun(class AGun* gun);
 	// 총을 버리는 함수
 	void DetachGun(class AGun* gun);
 
@@ -73,9 +81,21 @@ public:
 	class UInputAction* reloadAction;
 	// 총 쏘기 함수
 	void Fire();
+	// [서버] 에게 총 쏘기 요청 함수
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Fire();
+	// 모든 [클라] 에게 총 쏴라
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_FireAction(bool bHit, FHitResult hitInfo, int32 combo);
+	
 	// 재장전 함수
 	void Reload();
-
+	// [서버] 에게 재장전 요청 함수
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Reload();
+	// 모든 [클라] 에게 재장전 해라 함수
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Reload();
 	// 재장전 중 인지
 	bool isReload;
 	// 재장전 완료 함수
@@ -87,7 +107,6 @@ public:
 	// 생성 된 WBP_Main 담을 변수
 	UPROPERTY()
 	class UMainWidget* mainUI;
-
 
 	// 총 맞은 곳 Effect
 	UPROPERTY(EditAnywhere)
@@ -103,6 +122,8 @@ public:
 
 	// 죽었는지 여부
 	bool isDie;
+	// 죽었을 때 호출되는 함수
+	void DieProcess();
 
 	// 공격 시작 여부
 	bool isFire;
