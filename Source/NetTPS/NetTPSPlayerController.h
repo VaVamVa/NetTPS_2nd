@@ -44,4 +44,7 @@ public:
 	// [서버] 에게 관전자 모드 변경 요청 함수
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_ChangeToSpectator();
+
+	// 리스폰 함수
+	void Respawn();
 };

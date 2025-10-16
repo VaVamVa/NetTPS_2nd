@@ -35,17 +35,7 @@ void ANetPlayer::BeginPlay()
 
 	// Level 에 있는 모든 총을 찾자.
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGun::StaticClass(), allGun);
-
-	// 만약에 내 캐릭터라면
-	if (IsLocallyControlled())
-	{
-		// Main UI 를 만들자.
-		mainUI = CreateWidget<UMainWidget>(GetWorld(), mainWidget);
-		mainUI->AddToViewport();
-		// 머리 위 HPBar 보이지 않게 설정
-		compHP->SetVisibility(false);
-	}
-
+	
 	// CameraBoom 초기 위치 설정
 	CameraBoom->SetRelativeLocation(cameraBoomLocationWithoutGun);
 }
@@ -75,9 +65,9 @@ void ANetPlayer::Tick(float DeltaSeconds)
 		UE_LOG(LogTemp, Warning, TEXT("J 키 누르고 있음"));
 	}
 	// 눌렀을 때
-	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::J))
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::One))
     {
-    	UE_LOG(LogTemp, Warning, TEXT("J 키 눌렀을 때"));
+		MakeCube();
     }
 	// 떼었을 때
 	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustReleased(EKeys::J))
@@ -97,6 +87,17 @@ void ANetPlayer::GetLifetimeReplicatedProps(
 
 	// Replicate 할 변수 등록
 	DOREPLIFETIME(ANetPlayer, ownedGun);
+}
+
+// 서버에서만 호출되는 함수
+void ANetPlayer::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	
+	FString isServer = HasAuthority() ? TEXT("[서버]") : TEXT("[클라]");
+	UE_LOG(LogTemp, Warning, TEXT("%s - %s - %s"), *isServer, TEXT(__FUNCTION__), *GetActorNameOrLabel());
+
+	ClinetRPC_OnPossess();
 }
 
 void ANetPlayer::TakeGun()
@@ -335,6 +336,8 @@ void ANetPlayer::MulticastRPC_Reload_Implementation()
 
 void ANetPlayer::OnReloadComplete()
 {
+	// Die 상태면 함수 나가자
+	if (isDie) return;
 	// 재장전 끝 설정
 	isReload = false;
 	// 총알 가득 채우자.
@@ -378,6 +381,8 @@ void ANetPlayer::BillboardHPBar()
 
 void ANetPlayer::DieProcess()
 {
+	// 재장전 완료 상태로 바꾸자.
+	isReload = false;
 	// 움직이지 못하게 설정
 	GetCharacterMovement()->DisableMovement();
 	// 충돌되지 않게 설정
@@ -438,6 +443,28 @@ void ANetPlayer::PrintNetLog()
 		*connStr, *ownerStr, *mineStr, *roleStr);
 
 	DrawDebugString(GetWorld(), GetActorLocation(), logStr, nullptr, FColor::Yellow, 0, true);
+}
+
+void ANetPlayer::ClinetRPC_OnPossess_Implementation()
+{	
+	// Main UI 를 만들자.
+	mainUI = CreateWidget<UMainWidget>(GetWorld(), mainWidget);
+	mainUI->AddToViewport();
+	// 머리 위 HPBar 보이지 않게 설정
+	compHP->SetVisibility(false);
+	
+	FString isServer = HasAuthority() ? TEXT("[서버]") : TEXT("[클라]");
+	UE_LOG(LogTemp, Warning, TEXT("%s - %s - %s"), *isServer, TEXT(__FUNCTION__), *GetActorNameOrLabel());
+}
+
+void ANetPlayer::MakeCube()
+{
+	// 만약에 내 Player 가 아니면 함수 나가자.
+	if (IsLocallyControlled() == false) return;
+	// 내 위치 기준 앞방향으로 300 만큼 떨어진 위치
+	FVector pos = GetActorLocation() + GetActorForwardVector() * 300;
+	// 큐브를 pos 위치, 내 회전값으로 설정해서 생성하자.
+	GetWorld()->SpawnActor<AActor>(cubeFactory, pos, GetActorRotation());
 }
 
 

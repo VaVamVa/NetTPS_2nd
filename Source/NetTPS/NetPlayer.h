@@ -22,6 +22,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 public:
 	// 총 집기, 놓기 InputAction
@@ -140,6 +141,16 @@ public:
 
 	// 서버 연결 상태 및 Onwer 설정 출력
 	void PrintNetLog();
+
+	// Possess 되었을 때 [클라] 에게 알려주는 함수
+	UFUNCTION(Client, Reliable)
+	void ClinetRPC_OnPossess();
+
+	// BP_Cube 담을 변수
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> cubeFactory;
+	// 큐브 만드는 함수
+	void MakeCube();
 };
 
 
