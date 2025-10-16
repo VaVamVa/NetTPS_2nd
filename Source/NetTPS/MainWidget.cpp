@@ -3,6 +3,7 @@
 
 #include "MainWidget.h"
 
+#include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
 
@@ -57,4 +58,25 @@ void UMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		// damageUIOpacity 으로 damageUI 의 RenderOpacity 값 설정
 		damageUI->SetRenderOpacity(damageUIOpacity);
 	}
+}
+
+void UMainWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// BtnRetry 가져오자.
+	//btnRetry = Cast<UButton>(GetWidgetFromName(TEXT("BtnRetry")));
+	// BtnRetry 클릭했을 때 호출되는 함수 등록
+	btnRetry->OnClicked.AddDynamic(this, &UMainWidget::OnRetry);
+}
+
+void UMainWidget::OnRetry()
+{
+	// 관전자로 전환 하는 코드 예정
+}
+
+void UMainWidget::ShowBtnRetry()
+{
+	// BtnRetry 보이게
+	btnRetry->SetVisibility(ESlateVisibility::Visible);
 }

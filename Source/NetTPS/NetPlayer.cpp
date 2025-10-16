@@ -388,6 +388,12 @@ void ANetPlayer::DieProcess()
 	{
 		// 총을 들고 있다면 총 놓자.
 		if (hasGun) TakeGun();
+		// 화면 흑백 처리
+		FollowCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
+		// 다시하기 버튼 보이게
+		mainUI->ShowBtnRetry();
+		// 마우스 보이게
+		GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
 	}
 }
 
