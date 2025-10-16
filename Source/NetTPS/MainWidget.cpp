@@ -3,6 +3,8 @@
 
 #include "MainWidget.h"
 
+#include "NetTPSCharacter.h"
+#include "NetTPSPlayerController.h"
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Components/Image.h"
@@ -72,7 +74,14 @@ void UMainWidget::NativeConstruct()
 
 void UMainWidget::OnRetry()
 {
-	// 관전자로 전환 하는 코드 예정
+	// 관전자로 전환
+	ANetTPSPlayerController* pc = Cast<ANetTPSPlayerController>(GetWorld()->GetFirstPlayerController());
+	// [서버] 에게 관전자로 변경 요청
+	pc->ServerRPC_ChangeToSpectator();
+	// 마우스 보이지 않게
+	pc->SetShowMouseCursor(false);
+	// MainUI 삭제
+	RemoveFromParent();	
 }
 
 void UMainWidget::ShowBtnRetry()

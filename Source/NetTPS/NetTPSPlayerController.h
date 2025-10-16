@@ -19,7 +19,6 @@ class ANetTPSPlayerController : public APlayerController
 	GENERATED_BODY()
 	
 protected:
-
 	/** Input Mapping Contexts */
 	UPROPERTY(EditAnywhere, Category ="Input|Input Mappings")
 	TArray<UInputMappingContext*> DefaultMappingContexts;
@@ -41,6 +40,8 @@ protected:
 	/** Input mapping context setup */
 	virtual void SetupInputComponent() override;
 
-	
-
+public:
+	// [서버] 에게 관전자 모드 변경 요청 함수
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ChangeToSpectator();
 };

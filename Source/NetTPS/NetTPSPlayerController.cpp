@@ -7,6 +7,8 @@
 #include "InputMappingContext.h"
 #include "Blueprint/UserWidget.h"
 #include "NetTPS.h"
+#include "GameFramework/GameModeBase.h"
+#include "GameFramework/SpectatorPawn.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
 void ANetTPSPlayerController::BeginPlay()
@@ -58,4 +60,20 @@ void ANetTPSPlayerController::SetupInputComponent()
 			}
 		}
 	}
+}
+
+void ANetTPSPlayerController::ServerRPC_ChangeToSpectator_Implementation()
+{
+	// 현재 Possess 하고 있는 Pawn 을 가져오자.
+	APawn* pawn = GetPawn();
+	// 현재 GameMode 가져오자.
+	AGameModeBase* gm = GetWorld()->GetAuthGameMode();
+	// Unpossess 하자.
+	UnPossess();
+	// 관전자 Pawn 생성
+	ASpectatorPawn* spectator = GetWorld()->SpawnActor<ASpectatorPawn>(gm->SpectatorClass, pawn->GetTransform());
+	// 생성된 관전자로 Possess 하자.
+	Possess(spectator);
+	// 기존에 있던 Pawn(Player) 를 제거
+	pawn->Destroy();
 }
