@@ -24,4 +24,9 @@ public:
 	void AddPlayer(class ANetPlayer* player);
 	// 큐브 만들 수 있는 Player 변경
 	void ChangeTurn();
+
+	// Player 생성 위치 Index
+	int32 posIdx;
+	// 위치 계산 함수
+	void CalculatePos(class ANetPlayer* player);
 };
