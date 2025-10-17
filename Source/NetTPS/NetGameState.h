@@ -1,0 +1,27 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/GameStateBase.h"
+#include "NetGameState.generated.h"
+
+/**
+ * 
+ */
+UCLASS()
+class NETTPS_API ANetGameState : public AGameStateBase
+{
+	GENERATED_BODY()
+
+public:
+	// 모든 Player 를 담을 변수
+	UPROPERTY()
+	TArray<class ANetPlayer*> allPlayer;
+	// 현재 큐브를 만들 수 있는 Player Index
+	int32 currTurnIdx = -1;
+	// Player 가 생성될 때 Player 를 추가하는 함수
+	void AddPlayer(class ANetPlayer* player);
+	// 큐브 만들 수 있는 Player 변경
+	void ChangeTurn();
+};

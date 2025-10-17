@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "MainWidget.h"
+#include "NetGameState.h"
 #include "Camera/CameraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
@@ -38,6 +39,15 @@ void ANetPlayer::BeginPlay()
 	
 	// CameraBoom 초기 위치 설정
 	CameraBoom->SetRelativeLocation(cameraBoomLocationWithoutGun);
+
+	// 만약에 서버라면
+	if (HasAuthority())
+	{
+		// Game State 가져오자.
+		ANetGameState* gsb = Cast<ANetGameState>(GetWorld()->GetGameState());
+		// 나를 추가하자.
+		gsb->AddPlayer(this);
+	}
 }
 
 void ANetPlayer::SetupPlayerInputComponent(
@@ -87,6 +97,7 @@ void ANetPlayer::GetLifetimeReplicatedProps(
 
 	// Replicate 할 변수 등록
 	DOREPLIFETIME(ANetPlayer, ownedGun);
+	DOREPLIFETIME(ANetPlayer, canMakeCube);
 }
 
 // 서버에서만 호출되는 함수
@@ -119,6 +130,8 @@ void ANetPlayer::ServerRPC_TakeGun_Implementation()
 		// Level 에 있는 모든 총들 중에
 		for (int32 i = 0; i < allGun.Num(); i++)
 		{
+			// 만약에 총이 Owner 가 있다면 건너뛰자.
+			if (allGun[i]->GetOwner() != nullptr) continue;
 			// 나와 i 번째 총의 거리를 구하자.
 			float dist = FVector::Distance(allGun[i]->GetActorLocation(), GetActorLocation());
 			// 그 거리가 총을 집을 수 있는 거리가 아니라면 건너뛰자.
@@ -138,6 +151,8 @@ void ANetPlayer::ServerRPC_TakeGun_Implementation()
 		{
 			// cloestIdx 의 총을 ownedGun 설정
 			ownedGun = Cast<AGun>(allGun[closestIdx]);
+			// ownedGun 의 Owner 를 나로하자.
+			ownedGun->SetOwner(this);
 			// 검색 된 총을 나에게 붙이자.
 			AttachGun();
 		}
@@ -147,6 +162,8 @@ void ANetPlayer::ServerRPC_TakeGun_Implementation()
 	{
 		// ownedGun 을 담을 임시변수
 		AGun* tempGun = ownedGun;
+		// ownedGun 의 Owner 를 nullptr 로 하자
+		ownedGun->SetOwner(nullptr);
 		// ownedGun 을 nullptr 로 설정
 		ownedGun = nullptr;
 		// 모든 [클라] 에게 총놔라!
@@ -459,12 +476,23 @@ void ANetPlayer::ClinetRPC_OnPossess_Implementation()
 
 void ANetPlayer::MakeCube()
 {
+	// 만약에 큐브 만들 수 없는 상태면 함수 나가자.
+	if (canMakeCube == false) return;
 	// 만약에 내 Player 가 아니면 함수 나가자.
 	if (IsLocallyControlled() == false) return;
+	// [서버] 에게 큐브 생성 요청
+	ServerRPC_MakeCube();
+}
+
+void ANetPlayer::ServerRPC_MakeCube_Implementation()
+{
 	// 내 위치 기준 앞방향으로 300 만큼 떨어진 위치
 	FVector pos = GetActorLocation() + GetActorForwardVector() * 300;
 	// 큐브를 pos 위치, 내 회전값으로 설정해서 생성하자.
 	GetWorld()->SpawnActor<AActor>(cubeFactory, pos, GetActorRotation());
+	// 다음 큐브 만들 사람 정하자.
+	ANetGameState* gsb = Cast<ANetGameState>(GetWorld()->GetGameState());
+	gsb->ChangeTurn();
 }
 
 

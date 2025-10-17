@@ -149,8 +149,14 @@ public:
 	// BP_Cube 담을 변수
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> cubeFactory;
+	// 큐브를 만들 수 있는지 여부
+	UPROPERTY(Replicated)
+	bool canMakeCube;
 	// 큐브 만드는 함수
 	void MakeCube();
+	// [서버] 에게 큐브 만들어 달라는 함수
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_MakeCube();
 };
 
 
