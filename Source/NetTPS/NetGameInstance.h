@@ -39,4 +39,13 @@ public:
 	void FindOtherSession();
 	// 세션 조회 완료 함수
 	void OnFindSessionComplete(bool bWasSuccessful);
+
+	// 세션 참여 관련
+	// 세션 참여 함수
+	UFUNCTION(BlueprintCallable)
+	void JoinOtherSession(int32 sessionIdx);
+	// 세션 참여 완료 함수
+	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
 };
+
+

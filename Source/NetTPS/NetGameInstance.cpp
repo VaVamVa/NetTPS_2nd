@@ -23,6 +23,9 @@ void UNetGameInstance::Init()
 		// 세션 조회 성공시 호출되는 함수 등록
 		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(
 			this, &UNetGameInstance::OnFindSessionComplete);
+		// 세션 참여 성공시 호출되는 함수 등록
+		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(
+			this, &UNetGameInstance::OnJoinSessionComplete);
 	}
 }
 
@@ -63,6 +66,8 @@ void UNetGameInstance::OnCreateSessionComplete(FName sessionName,
 	if (bWasSuccessful)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[%s] 세션 생성 성공"), *sessionName.ToString());
+		// 총 쏘는 맵 으로 이동
+		GetWorld()->ServerTravel(TEXT("/Game/ThirdPerson/Lvl_ThirdPerson?listen"));
 	}
 	else
 	{
@@ -86,7 +91,6 @@ void UNetGameInstance::FindOtherSession()
 	sessionSearch->MaxSearchResults = 100;
 	// 위 설정을 가지고 세션 검색
 	sessionInterface->FindSessions(0, sessionSearch.ToSharedRef());
-	
 }
 
 void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
@@ -109,3 +113,36 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 		UE_LOG(LogTemp, Warning, TEXT("세션 조회 실패"));
 	}	
 }
+
+void UNetGameInstance::JoinOtherSession(int32 sessionIdx)
+{
+	// 검색된 세션 결과들
+	auto results = sessionSearch->SearchResults;
+	// 5.5 이후 부터 바꼈다...
+	results[sessionIdx].Session.SessionSettings.bUseLobbiesIfAvailable = true;
+	results[sessionIdx].Session.SessionSettings.bUsesPresence = true;
+
+	// 세션 이름 가져오자.
+	FString displayName;
+	results[sessionIdx].Session.SessionSettings.Get(FName(TEXT("DP_NAME")), displayName);
+
+	// 세션 참여
+	sessionInterface->JoinSession(0, FName(displayName), results[sessionIdx]);
+}
+
+void UNetGameInstance::OnJoinSessionComplete(FName sessionName,
+	EOnJoinSessionCompleteResult::Type result)
+{
+	// 만약 참여 성공 했다면
+	if (result == EOnJoinSessionCompleteResult::Success)
+	{
+		// 서버가 만들어 놓은 세션 URL 을 얻어오자.
+		FString url;
+		sessionInterface->GetResolvedConnectString(sessionName, url);
+		UE_LOG(LogTemp, Warning, TEXT("URL : %s"), *url);
+		// 서버가 있는 맵으로 이동 (최초 1번)
+		APlayerController* pc = GetWorld()->GetFirstPlayerController();
+		pc->ClientTravel(url, TRAVEL_Absolute);
+	}
+}
+
