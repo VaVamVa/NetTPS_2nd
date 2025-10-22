@@ -113,7 +113,9 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("세션 조회 실패"));
-	}	
+	}
+
+	onFindComplete.ExecuteIfBound(-1, FString());
 }
 
 void UNetGameInstance::JoinOtherSession(int32 sessionIdx)

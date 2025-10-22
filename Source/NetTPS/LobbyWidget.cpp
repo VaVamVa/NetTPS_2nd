@@ -37,6 +37,11 @@ void ULobbyWidget::NativeConstruct()
 	btnFind->OnClicked.AddDynamic(this, &ULobbyWidget::OnClickFind);
 	// GameInstace 의 delegate 등록
 	gi->onFindComplete.BindUObject(this, &ULobbyWidget::OnFindComplete);
+
+
+	// 뒤로가기 버튼 클릭시 호출되는 함수 등록
+	btnBackFromCreate->OnClicked.AddDynamic(this, &ULobbyWidget::ULobbyWidget::OnClickBack);
+	btnBackFromFind->OnClicked.AddDynamic(this, &ULobbyWidget::ULobbyWidget::OnClickBack);
 }
 
 void ULobbyWidget::OnClickGoCreate()
@@ -49,6 +54,8 @@ void ULobbyWidget::OnClickGoFind()
 {
 	// 세션 조회 화면으로 이동
 	widgetSwitcher->SetActiveWidgetIndex(2);
+	// 세션 조회
+	OnClickFind();
 }
 
 void ULobbyWidget::OnClickCreate()
@@ -76,16 +83,37 @@ void ULobbyWidget::OnValueChangedPlayerCount(float value)
 
 void ULobbyWidget::OnClickFind()
 {
+	// SessionList 의 자식들 삭제
+	scrollSessionList->ClearChildren();
+	// 조회 버튼 문구 변경
+	textFind->SetText(FText::FromString(TEXT("세션 조회 중 ...")));
+	// 조회 버튼 비활성화
+	btnFind->SetIsEnabled(false);	
 	// 세션 조회
 	gi->FindOtherSession();
 }
 
 void ULobbyWidget::OnFindComplete(int32 idx, FString sessionName)
 {
-	// sessionInfoWidget 만들자.
-	USessionInfoWidget* item = CreateWidget<USessionInfoWidget>(GetWorld(), sessionInfoWidget);
-	// 만들어진 item 을 scrollSessionList 에 추가
-	scrollSessionList->AddChild(item);
-	// 만들어지 item 정보 설정
-	item->SetSessionInfo(idx, sessionName);
+	if (idx == -1)
+	{
+		// 조회 버튼 문구 변경
+		textFind->SetText(FText::FromString(TEXT("세션 조회")));
+		// 조회 버튼 활성화
+		btnFind->SetIsEnabled(true);	
+	}
+	else
+	{
+		// sessionInfoWidget 만들자.
+		USessionInfoWidget* item = CreateWidget<USessionInfoWidget>(GetWorld(), sessionInfoWidget);
+		// 만들어진 item 을 scrollSessionList 에 추가
+		scrollSessionList->AddChild(item);
+		// 만들어지 item 정보 설정
+		item->SetSessionInfo(idx, sessionName);
+	}
+}
+
+void ULobbyWidget::OnClickBack()
+{
+	widgetSwitcher->SetActiveWidgetIndex(0);
 }

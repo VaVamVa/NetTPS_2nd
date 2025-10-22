@@ -69,6 +69,9 @@ public:
 	// 조회 버튼
 	UPROPERTY(meta=(BindWidget))
 	class UButton* btnFind;
+	// 죄회 버튼 문구
+	UPROPERTY(meta=(BindWidget))
+	class UTextBlock* textFind;
 	// SessionInfoWidget
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class USessionInfoWidget> sessionInfoWidget;
@@ -79,4 +82,14 @@ public:
 	// (NetGameInstance 의 onFindComplete 딜리게이트에 등록할 함수)
 	UFUNCTION()
 	void OnFindComplete(int32 idx, FString sessionName);
+
+
+	// 뒤로 가기 버튼
+	UPROPERTY(meta=(BindWidget))
+	class UButton* btnBackFromCreate;
+	UPROPERTY(meta=(BindWidget))
+	class UButton* btnBackFromFind;
+	// 뒤로 가기 눌렀을 때 호출되는 함수
+	UFUNCTION()
+	void OnClickBack();
 };
