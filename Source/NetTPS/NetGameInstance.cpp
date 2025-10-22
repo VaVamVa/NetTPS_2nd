@@ -106,6 +106,8 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 			FString displayName;
 			results[i].Session.SessionSettings.Get(FName(TEXT("DP_NAME")), displayName);
 			UE_LOG(LogTemp, Warning, TEXT("세션 - %i, 이름 : %s"), i, *displayName);
+			// onFindComplete 에 들어있는 함수 실행
+			onFindComplete.ExecuteIfBound(i, displayName);
 		}
 	}
 	else

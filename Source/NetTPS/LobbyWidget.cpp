@@ -9,6 +9,8 @@
 #include "Components/Slider.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetSwitcher.h"
+#include "SessionInfoWidget.h"
+#include "Components/ScrollBox.h"
 
 void ULobbyWidget::NativeConstruct()
 {
@@ -30,6 +32,11 @@ void ULobbyWidget::NativeConstruct()
 	editSessionName->OnTextChanged.AddDynamic(this, &ULobbyWidget::OnValueChangedSessionName);
 	// 인원 수 변경 될 때 호출되는 함수 등록
 	sliderPlayerCount->OnValueChanged.AddDynamic(this, &ULobbyWidget::OnValueChangedPlayerCount);
+
+	// 세션 조회 버튼 클릭 함수 등록
+	btnFind->OnClicked.AddDynamic(this, &ULobbyWidget::OnClickFind);
+	// GameInstace 의 delegate 등록
+	gi->onFindComplete.BindUObject(this, &ULobbyWidget::OnFindComplete);
 }
 
 void ULobbyWidget::OnClickGoCreate()
@@ -65,4 +72,20 @@ void ULobbyWidget::OnValueChangedPlayerCount(float value)
 {
 	// value 값을 textPlayerCount 에 설정
 	textPlayerCount->SetText(FText::AsNumber(value));
+}
+
+void ULobbyWidget::OnClickFind()
+{
+	// 세션 조회
+	gi->FindOtherSession();
+}
+
+void ULobbyWidget::OnFindComplete(int32 idx, FString sessionName)
+{
+	// sessionInfoWidget 만들자.
+	USessionInfoWidget* item = CreateWidget<USessionInfoWidget>(GetWorld(), sessionInfoWidget);
+	// 만들어진 item 을 scrollSessionList 에 추가
+	scrollSessionList->AddChild(item);
+	// 만들어지 item 정보 설정
+	item->SetSessionInfo(idx, sessionName);
 }

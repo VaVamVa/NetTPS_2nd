@@ -61,5 +61,22 @@ public:
 	// 인원수 Slider 값이 변경 될 때 호출되는 함수
 	UFUNCTION()
 	void OnValueChangedPlayerCount(float value);
-	
+
+	// 세션 조회 관련
+	// 세션 목록
+	UPROPERTY(meta=(BindWidget))
+	class UScrollBox* scrollSessionList;
+	// 조회 버튼
+	UPROPERTY(meta=(BindWidget))
+	class UButton* btnFind;
+	// SessionInfoWidget
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class USessionInfoWidget> sessionInfoWidget;
+	// 조회 버튼 클릭시 호출되는 함수
+	UFUNCTION()
+	void OnClickFind();
+	// 세션 정보를 받아 SessionInfoWidget 을 만드는 함수
+	// (NetGameInstance 의 onFindComplete 딜리게이트에 등록할 함수)
+	UFUNCTION()
+	void OnFindComplete(int32 idx, FString sessionName);
 };
