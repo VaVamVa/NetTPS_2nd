@@ -13,6 +13,7 @@
 #include "NetGameState.h"
 #include "Camera/CameraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/PlayerState.h"
@@ -80,10 +81,17 @@ void ANetPlayer::Tick(float DeltaSeconds)
     {
 		MakeCube();
     }
-	// 떼었을 때
-	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustReleased(EKeys::J))
+	// 왼쪽 컨트롤 키 눌렀을 때
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::LeftControl))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("J 키 떼었을 때"));
+		// 만약에 내 Player 라면
+		if (IsLocallyControlled())
+		{
+			APlayerController* pc = GetWorld()->GetFirstPlayerController();
+			// Input Mode 를 UI 전용으로 설정
+			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(pc);
+			pc->SetShowMouseCursor(true);
+		}
 	}
 
 	BillboardHPBar();
@@ -479,7 +487,7 @@ void ANetPlayer::ClinetRPC_OnPossess_Implementation()
 {	
 	// Main UI 를 만들자.
 	mainUI = CreateWidget<UMainWidget>(GetWorld(), mainWidget);
-	mainUI->AddToViewport();
+	mainUI->AddToViewport(-1);
 	// 머리 위 HPBar 보이지 않게 설정
 	compHP->SetVisibility(false);
 	
