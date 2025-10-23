@@ -2,6 +2,9 @@
 
 
 #include "NetGameInstance.h"
+
+#include <string>
+
 #include "OnlineSubsystem.h"
 #include "OnlineSubsystemUtils.h"
 #include "OnlineSessionSettings.h"
@@ -50,6 +53,8 @@ void UNetGameInstance::CreateMySession(FString displayName, int32 playerCount)
 	// 세션 최대 참여 인원 설정
 	sessionSettings.NumPublicConnections = playerCount;
 	// 커스텀 정보
+	// displayName 을 Base64 로 변환
+	displayName = StringBase64Encode(displayName);
 	sessionSettings.Set(FName("DP_NAME"), displayName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	//sessionSettings.Set(FName("MAP_IDX"), 1, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
@@ -105,6 +110,8 @@ void UNetGameInstance::OnFindSessionComplete(bool bWasSuccessful)
 			// 방 제목 이름 담을 변수
 			FString displayName;
 			results[i].Session.SessionSettings.Get(FName(TEXT("DP_NAME")), displayName);
+			// displayName 을 UTF8 string 으로 변환
+			displayName = StringBase64Decode(displayName);
 			UE_LOG(LogTemp, Warning, TEXT("세션 - %i, 이름 : %s"), i, *displayName);
 			// onFindComplete 에 들어있는 함수 실행
 			onFindComplete.ExecuteIfBound(i, displayName);
@@ -140,7 +147,7 @@ void UNetGameInstance::OnJoinSessionComplete(FName sessionName,
 	// 만약 참여 성공 했다면
 	if (result == EOnJoinSessionCompleteResult::Success)
 	{
-		// 서버가 만들어 놓은 세션 URL 을 얻어오자.
+		// 서버가 만들어 놓은 세션 URL 을 얻어오자.k
 		FString url;
 		sessionInterface->GetResolvedConnectString(sessionName, url);
 		UE_LOG(LogTemp, Warning, TEXT("URL : %s"), *url);
@@ -148,5 +155,23 @@ void UNetGameInstance::OnJoinSessionComplete(FName sessionName,
 		APlayerController* pc = GetWorld()->GetFirstPlayerController();
 		pc->ClientTravel(url, TRAVEL_Absolute);
 	}
+}
+
+FString UNetGameInstance::StringBase64Encode(FString str)
+{
+	// str 을 std::string 로 변환
+	std::string utf8String = TCHAR_TO_UTF8(*str);
+	// utf8String 을 uint8 의 Array 변환
+	TArray<uint8> arrayData = TArray<uint8>((uint8*)utf8String.c_str(), utf8String.length());
+
+	return FBase64::Encode(arrayData);
+}
+
+FString UNetGameInstance::StringBase64Decode(FString str)
+{
+	TArray<uint8> arrayData;
+	FBase64::Decode(str, arrayData);
+	std::string utf8String((char*)arrayData.GetData(), arrayData.Num());
+	return UTF8_TO_TCHAR(utf8String.c_str());
 }
 

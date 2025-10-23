@@ -49,7 +49,10 @@ public:
 	// 세션 참여 완료 함수
 	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
 
-	
+	// 문자열을 UTF-8 --> base64 로 Encode 하는 함수
+	FString StringBase64Encode(FString str);	
+	// 문자열을 base64 --> UTF-8 로 Decode 하는 함수
+	FString StringBase64Decode(FString str);
 };
 
 
