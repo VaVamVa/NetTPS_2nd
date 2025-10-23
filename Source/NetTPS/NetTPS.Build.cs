@@ -21,7 +21,8 @@ public class NetTPS : ModuleRules
 			"Slate",
 			"Niagara",
 			"OnlineSubsystem",
-			"OnlineSubsystemSteam"
+			"OnlineSubsystemSteam",
+			"SlateCore",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

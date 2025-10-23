@@ -6,6 +6,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "NetGameState.generated.h"
 
+class UPlayerInfoWidget;
+class UGameWidget;
 /**
  * 
  */
@@ -15,6 +17,14 @@ class NETTPS_API ANetGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
+	// Game Widget Blueprint Class
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Widget)
+	TSubclassOf<UGameWidget> gameWidgetFactory;
+	UPROPERTY()
+	TObjectPtr<UGameWidget> gameWidget;
+	void AddScore(APlayerState* PlayerState);
+	
 	// 모든 Player 를 담을 변수
 	UPROPERTY()
 	TArray<class ANetPlayer*> allPlayer;

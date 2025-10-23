@@ -92,4 +92,8 @@ public:
 	// 뒤로 가기 눌렀을 때 호출되는 함수
 	UFUNCTION()
 	void OnClickBack();
+
+	
+	
+	
 };

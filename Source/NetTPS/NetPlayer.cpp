@@ -1,19 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "NetPlayer.h"
 
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "EnhancedInputComponent.h"
+#include "GameWidget.h"
 #include "Gun.h"
 #include "HPBar.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "MainWidget.h"
 #include "NetGameState.h"
 #include "Camera/CameraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/EditableTextBox.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -83,6 +85,17 @@ void ANetPlayer::Tick(float DeltaSeconds)
 	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustReleased(EKeys::J))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("J 키 떼었을 때"));
+	}
+
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustReleased(EKeys::Enter))
+	{
+		APlayerController* playerController = GetWorld()->GetFirstPlayerController();
+		UEditableTextBox* textBox = GetWorld()->GetGameState<ANetGameState>()->gameWidget->chatInputBox;
+		if (!textBox->HasUserFocus(playerController))
+		{
+			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(playerController);
+			textBox->SetFocus();
+		}
 	}
 
 	BillboardHPBar();
@@ -302,6 +315,7 @@ void ANetPlayer::MulticastRPC_FireAction_Implementation(bool bHit,
 		{
 			// 데미지 처리 하자.
 			player->DamageProcess(20);
+			GetWorld()->GetGameState<ANetGameState>()->AddScore(GetPlayerState());
 		}
 	}
 }
@@ -466,7 +480,7 @@ void ANetPlayer::ClinetRPC_OnPossess_Implementation()
 {	
 	// Main UI 를 만들자.
 	mainUI = CreateWidget<UMainWidget>(GetWorld(), mainWidget);
-	mainUI->AddToViewport();
+	mainUI->AddToViewport(-1);
 	// 머리 위 HPBar 보이지 않게 설정
 	compHP->SetVisibility(false);
 	

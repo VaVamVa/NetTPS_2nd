@@ -5,6 +5,30 @@
 
 #include "AnimationEditorTypes.h"
 #include "NetPlayer.h"
+#include "Blueprint/UserWidget.h"
+#include "GameWidget.h"
+#include "PlayerInfoWidget.h"
+#include "GameFramework/PlayerState.h"
+
+void ANetGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+
+	if (!gameWidget)
+	{
+		gameWidget = CreateWidget<UGameWidget>(GetWorld(), gameWidgetFactory);
+		gameWidget->AddToViewport();
+	}
+	gameWidget->AddPlayerInfo(PlayerState);
+}
+
+void ANetGameState::AddScore(APlayerState* PlayerState)
+{
+	if (IsValid(gameWidget))
+	{
+		gameWidget->AddScore(PlayerState);
+	}
+}
 
 void ANetGameState::AddPlayer(class ANetPlayer* player)
 {
