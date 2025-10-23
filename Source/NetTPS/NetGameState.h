@@ -29,4 +29,13 @@ public:
 	int32 posIdx;
 	// 위치 계산 함수
 	void CalculatePos(class ANetPlayer* player);
+
+	// PlayerState 추가될 때 호출되는 함수
+	virtual void AddPlayerState(APlayerState* PlayerState) override;
+	// Game Widget 블루프린트
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UGameWidget> gameWidget;
+	// Game Widget 결과물 담을 변수
+	UPROPERTY()
+	class UGameWidget* gameUI;
 };

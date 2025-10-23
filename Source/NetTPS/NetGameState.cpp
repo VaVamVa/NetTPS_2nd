@@ -3,8 +3,9 @@
 
 #include "NetGameState.h"
 
-#include "AnimationEditorTypes.h"
 #include "NetPlayer.h"
+#include "GameWidget.h"
+#include "NetPlayerState.h"
 
 void ANetGameState::AddPlayer(class ANetPlayer* player)
 {
@@ -51,4 +52,19 @@ void ANetGameState::CalculatePos(class ANetPlayer* player)
 	player->SetActorLocation(pos);
 	// posIdx 증가
 	posIdx++;
+}
+
+//[서버][클라] 모두 호출 됨.
+void ANetGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+	// 만약에 GameUI 가 없다면
+	if (gameUI == nullptr)
+	{
+		// GameUI 생성
+		gameUI = CreateWidget<UGameWidget>(GetWorld(), gameWidget);
+		gameUI->AddToViewport();
+	}
+	// PlayerInfoUI 하나 만들어서 추가
+	gameUI->AddPlayerInfoUI(Cast<ANetPlayerState>(PlayerState));
 }

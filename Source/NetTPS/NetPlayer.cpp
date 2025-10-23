@@ -15,6 +15,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/PlayerState.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
@@ -321,6 +322,18 @@ void ANetPlayer::FireAction()
 	bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startPos, endPos, ECC_Visibility, params);
 	// 모든 [클라] 에게 LineTrace 결과 넘겨서 총쏘게 하자
 	MulticastRPC_FireAction(bHit, hitInfo, comboCnt);
+
+	// 만약에 맞은 액터가 Player 라면
+	ANetPlayer* player = Cast<ANetPlayer>(hitInfo.GetActor());
+	if (bHit && player)
+	{
+		// 자신의 PlayerState 가져오자
+		APlayerState* ps = GetPlayerState();
+		// 점수 올리자.
+		ps->SetScore(ps->GetScore() + 1);
+		// 점수 변경 함수 호출 (서버를 위해서)
+		ps->OnRep_Score();
+	}
 }
 
 void ANetPlayer::Reload()
