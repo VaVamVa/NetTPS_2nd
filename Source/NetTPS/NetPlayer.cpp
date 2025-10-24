@@ -92,6 +92,10 @@ void ANetPlayer::Tick(float DeltaSeconds)
 			// Input Mode 를 UI 전용으로 설정
 			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(pc);
 			pc->SetShowMouseCursor(true);
+
+			// 현재 눌려있는 키보드를 다 초기화 해주는 함수
+			pc->FlushPressedKeys();
+			//GetWorld()->GetGameState<ANetGameState>()->gameUI->SetKeyboardFocus();
 		}
 	}
 
