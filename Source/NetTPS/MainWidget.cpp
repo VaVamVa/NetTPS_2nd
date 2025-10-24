@@ -62,30 +62,4 @@ void UMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 }
 
-void UMainWidget::NativeConstruct()
-{
-	Super::NativeConstruct();
 
-	// BtnRetry 가져오자.
-	//btnRetry = Cast<UButton>(GetWidgetFromName(TEXT("BtnRetry")));
-	// BtnRetry 클릭했을 때 호출되는 함수 등록
-	btnRetry->OnClicked.AddDynamic(this, &UMainWidget::OnRetry);
-}
-
-void UMainWidget::OnRetry()
-{
-	// 관전자로 전환
-	ANetTPSPlayerController* pc = Cast<ANetTPSPlayerController>(GetWorld()->GetFirstPlayerController());
-	// [서버] 에게 관전자로 변경 요청
-	pc->ServerRPC_ChangeToSpectator();
-	// 마우스 보이지 않게
-	pc->SetShowMouseCursor(false);
-	// MainUI 삭제
-	RemoveFromParent();	
-}
-
-void UMainWidget::ShowBtnRetry()
-{
-	// BtnRetry 보이게
-	btnRetry->SetVisibility(ESlateVisibility::Visible);
-}

@@ -4,6 +4,7 @@
 #include "NetPlayer.h"
 
 #include "EnhancedInputComponent.h"
+#include "GameWidget.h"
 #include "Gun.h"
 #include "HPBar.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -433,10 +434,13 @@ void ANetPlayer::DieProcess()
 		if (hasGun) TakeGun();
 		// 화면 흑백 처리
 		FollowCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
-		// 다시하기 버튼 보이게
-		mainUI->ShowBtnRetry();
+		// MainUI 삭제
+		mainUI->RemoveFromParent();
 		// 마우스 보이게
 		GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
+		// 다시하기 버튼 보이게
+		ANetGameState* gs = Cast<ANetGameState>(GetWorld()->GetGameState());
+		gs->gameUI->ShowBtnRetry(true);
 	}
 }
 

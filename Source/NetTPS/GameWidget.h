@@ -41,4 +41,22 @@ public:
 	TSubclassOf<class UChatWidget> chatWiget;
 	// 채팅 UI 추가 함수
 	void AddChat(FString text);
+
+	// Border Empty
+	UPROPERTY(meta=(BindWidget))
+	class UBorder* borderEmpty;
+	// Border 마우스 클릭 이벤트 함수
+	UFUNCTION()
+	FEventReply OnPointerEvent(FGeometry MyGeometry, const FPointerEvent& MouseEvent);
+
+	// BtnRetry 담을 변수
+	UPROPERTY(meta=(BindWidget))
+	class UButton* btnRetry;
+	// BtnRetry 클릭했을 때 호출되는 함수
+	UFUNCTION()
+	void OnRetry();
+	// BtnRetry 활성화 시켜주는 함수
+	void ShowBtnRetry(bool visible);
 };
+
+

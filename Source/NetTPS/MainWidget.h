@@ -48,13 +48,5 @@ public:
 	void ShowDamageUI();
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	
-	virtual void NativeConstruct() override;
-	// BtnRetry 담을 변수
-	UPROPERTY(meta=(BindWidget))
-	class UButton* btnRetry;
-	// BtnRetry 클릭했을 때 호출되는 함수
-	UFUNCTION()
-	void OnRetry();
-	// BtnRetry 활성화 시켜주는 함수
-	void ShowBtnRetry();
+	
 };

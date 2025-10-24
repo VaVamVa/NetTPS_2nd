@@ -5,7 +5,11 @@
 
 #include "ChatWidget.h"
 #include "NetPlayerState.h"
+#include "NetTPSPlayerController.h"
 #include "PlayerInfoWidget.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Components/Border.h"
+#include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/VerticalBox.h"
@@ -14,7 +18,12 @@ void UGameWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	// 채팅 입력 후 엔터쳤을 때 호출되는 함수 등록
-	editChat->OnTextCommitted.AddDynamic(this, &UGameWidget::UGameWidget::OnTextBoxCommitted);
+	editChat->OnTextCommitted.AddDynamic(this, &UGameWidget::OnTextBoxCommitted);
+	// Border 마우스 클릭시 호출되는 함수 등록
+	borderEmpty->OnMouseButtonDownEvent.BindDynamic(this, &UGameWidget::OnPointerEvent);
+
+	// BtnRetry 클릭했을 때 호출되는 함수 등록
+	btnRetry->OnClicked.AddDynamic(this, &UGameWidget::OnRetry);
 }
 
 void UGameWidget::AddPlayerInfoUI(class ANetPlayerState* ps)
@@ -74,4 +83,34 @@ void UGameWidget::AddChat(FString text)
 			scrollChat->ScrollToEnd();
 		}, 0.01f, false);
 	}
+}
+
+FEventReply UGameWidget::OnPointerEvent(FGeometry MyGeometry,
+	const FPointerEvent& MouseEvent)
+{
+	// Input Mode 를 GameOnly 로 설정
+	APlayerController* pc = GetWorld()->GetFirstPlayerController();
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(pc);
+	// 마우스 포인터 비활성화
+	pc->SetShowMouseCursor(false);
+
+	return UWidgetBlueprintLibrary::Handled();
+}
+
+void UGameWidget::OnRetry()
+{
+	// 관전자로 전환
+	ANetTPSPlayerController* pc = Cast<ANetTPSPlayerController>(GetWorld()->GetFirstPlayerController());
+	// [서버] 에게 관전자로 변경 요청
+	pc->ServerRPC_ChangeToSpectator();
+	// 마우스 보이지 않게
+	pc->SetShowMouseCursor(false);
+	// 다시하기 버튼 보이지 않게
+	ShowBtnRetry(false);	
+}
+
+void UGameWidget::ShowBtnRetry(bool visible)
+{
+	// BtnRetry 보이게
+	btnRetry->SetVisibility(visible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 }
