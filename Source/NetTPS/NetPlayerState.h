@@ -25,4 +25,11 @@ public:
 	FUpdateName onUpdateName;
 	// 점수 Delgate
 	FUpdateScore onUpdateScore;
+
+	// 서버에게 채팅 내용 전달 RPC
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SendChat(const FString& chat);
+	// 모든 클라에게 채팅 내용 전달 RPC
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_SendChat(const FString& chat);
 };

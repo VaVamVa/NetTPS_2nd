@@ -39,4 +39,6 @@ public:
 	// ChatWidget 블루프린트
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UChatWidget> chatWiget;
+	// 채팅 UI 추가 함수
+	void AddChat(FString text);
 };

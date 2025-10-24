@@ -4,6 +4,7 @@
 #include "GameWidget.h"
 
 #include "ChatWidget.h"
+#include "NetPlayerState.h"
 #include "PlayerInfoWidget.h"
 #include "Components/EditableTextBox.h"
 #include "Components/ScrollBox.h"
@@ -32,11 +33,12 @@ void UGameWidget::OnTextBoxCommitted(const FText& text,
 	// 만약에 엔터를 친 이벤트면
 	if (commitMethod == ETextCommit::OnEnter)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("content : %s"), *text.ToString());
-		// 채팅 UI 만들어서 채팅 내용에 추가
-		UChatWidget* chat = CreateWidget<UChatWidget>(GetWorld(), chatWiget);
-		scrollChat->AddChild(chat);
-		chat->SetContent(text.ToString());
+		// 서버에게 채팅 내용 전달
+		// 내 PlayerState 가져오자.
+		APlayerController* pc = GetWorld()->GetFirstPlayerController();
+		ANetPlayerState* ps = pc->GetPlayerState<ANetPlayerState>();
+		ps->ServerRPC_SendChat(text.ToString());
+
 		// editChat 에 남아있는 내용 초기화
 		editChat->SetText(FText());
 	}
@@ -44,5 +46,32 @@ void UGameWidget::OnTextBoxCommitted(const FText& text,
 	{
 		// 강제로 editChat 을 활성화
 		editChat->SetFocus();
+	}
+}
+
+void UGameWidget::AddChat(FString text)
+{
+	// 현재 스크롤 위치 값
+	float scrollOffset = scrollChat->GetScrollOffset();
+	// 스크롤이 맨 끝일때 값
+	float scrollOffsetOfEnd = scrollChat->GetScrollOffsetOfEnd();
+	
+	// 채팅 UI 만들어서 채팅 내용에 추가
+	UChatWidget* chat = CreateWidget<UChatWidget>(GetWorld(), chatWiget);
+	scrollChat->AddChild(chat);
+	chat->SetContent(text);
+	
+
+	// 만약에 스크롤이 위치가 맨 끝이라면
+	if (scrollOffset == scrollOffsetOfEnd)
+	{
+		// 개행되는 채팅이 추가되면 한줄로 크기를 인식해서 발생하는 문제 때문에
+		// ScrollToEnd 를 0.01 초 뒤에 실행
+		FTimerHandle handle;
+		GetWorld()->GetTimerManager().SetTimer(handle, [this]()
+		{
+			// 스크롤 위치를 맨 끝으로 해라!
+			scrollChat->ScrollToEnd();
+		}, 0.01f, false);
 	}
 }
