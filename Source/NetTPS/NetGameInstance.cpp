@@ -71,8 +71,8 @@ void UNetGameInstance::OnCreateSessionComplete(FName sessionName,
 	if (bWasSuccessful)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[%s] 세션 생성 성공"), *sessionName.ToString());
-		// 총 쏘는 맵 으로 이동
-		GetWorld()->ServerTravel(TEXT("/Game/ThirdPerson/Lvl_ThirdPerson?listen"));
+		// Ready 맵 으로 이동
+		GetWorld()->ServerTravel(TEXT("/Game/Net/ReadyMap?listen"));
 	}
 	else
 	{

@@ -30,5 +30,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<class USkeletalMesh*> playerMeshArray;
 	// Mesh 설정 함수
-	void SetMesh(int32 idx);
+	void SetMesh(int32 meshIdx);
+	// 선택한 Mesh Idx 담을 변수
+	int32 selectMeshIdx;
+	// Mesh 에 따른 Animation 종류들
+	UPROPERTY(EditAnywhere)
+	TArray<class UAnimationAsset*> playerAnimArray;
+	// Animation 설정 함수
+	void SetAnim(int32 animIdx);
 };

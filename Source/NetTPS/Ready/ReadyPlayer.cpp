@@ -28,9 +28,19 @@ void AReadyPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AReadyPlayer::SetMesh(int32 idx)
+void AReadyPlayer::SetMesh(int32 meshIdx)
 {
+	// 선택한 Mesh Idx 저장
+	selectMeshIdx = meshIdx;
 	// idx 번째의 Mesh 설정
-	mesh->SetSkeletalMesh(playerMeshArray[idx]);
+	mesh->SetSkeletalMesh(playerMeshArray[meshIdx]);
+	// Ready 하지 않은 Animation 실행
+	SetAnim(0);
+}
+
+void AReadyPlayer::SetAnim(int32 animIdx)
+{
+	int32 n = playerAnimArray.Num() / playerMeshArray.Num();
+	mesh->SetAnimation(playerAnimArray[selectMeshIdx * n + animIdx]);
 }
 

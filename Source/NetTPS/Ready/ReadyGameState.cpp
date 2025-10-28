@@ -3,6 +3,9 @@
 
 #include "ReadyGameState.h"
 
+#include "ReadyPlayer.h"
+#include "ReadyPlayerState.h"
+
 void AReadyGameState::AddPlayer(AActor* player)
 {
 	// player 추가
@@ -15,4 +18,14 @@ void AReadyGameState::AddPlayer(AActor* player)
 	{
 		allReadyPlayer[i]->SetActorLocation(startPos + FVector::RightVector * 200 * i);
 	}
+}
+
+bool AReadyGameState::IsAllReady()
+{
+	for (int32 i = 0; i < PlayerArray.Num(); i++)
+	{
+		AReadyPlayerState* ps = Cast<AReadyPlayerState>(PlayerArray[i]);
+		if (ps->isReady == false) return false;
+	}
+	return true;
 }

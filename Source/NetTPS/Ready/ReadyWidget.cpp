@@ -3,6 +3,7 @@
 
 #include "ReadyWidget.h"
 
+#include "ReadyGameState.h"
 #include "ReadyPlayerState.h"
 #include "Components/Button.h"
 
@@ -31,8 +32,22 @@ void UReadyWidget::OnClickPlayer02()
 
 void UReadyWidget::OnClickReady()
 {
+	ps->ServerRPC_Ready();
 }
 
 void UReadyWidget::OnClickStart()
 {
+	if (ps->HasAuthority())
+	{
+		AReadyGameState* gs = Cast<AReadyGameState>(GetWorld()->GetGameState());
+		if (gs->IsAllReady())
+		{
+			// 총 쏘는 맵 으로 이동
+			GetWorld()->ServerTravel(TEXT("/Game/ThirdPerson/Lvl_ThirdPerson?listen"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("모든 플레이어가 READY 상태가 아닙니다."))
+		}
+	}
 }

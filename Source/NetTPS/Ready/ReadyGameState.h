@@ -20,4 +20,5 @@ public:
 	TArray<AActor*> allReadyPlayer;
 
 	void AddPlayer(AActor* player);
+	bool IsAllReady();
 };

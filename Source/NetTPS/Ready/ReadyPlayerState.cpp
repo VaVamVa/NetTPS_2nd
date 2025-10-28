@@ -36,3 +36,17 @@ void AReadyPlayerState::MulticastRPC_SelectPlayer_Implementation(
 }
 
 
+void AReadyPlayerState::ServerRPC_Ready_Implementation()
+{
+	// 모든 [클라] 에게 해당 Player 가 Ready 설정 / 해제 상태 보내자.
+	MulticastRPC_Ready(!isReady);
+}
+
+void AReadyPlayerState::MulticastRPC_Ready_Implementation(bool ready)
+{
+	// 레디 상태 갱신
+	isReady = ready;
+	
+	// 애니메이션 갱신
+	readyPlayer->SetAnim(isReady ? 1 : 0);
+}

@@ -31,4 +31,11 @@ public:
 	void ServerRPC_SelectPlayer(int32 playerIdx);
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_SelectPlayer(int32 playerIdx);
+
+	// 래디 관련
+	bool isReady;
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Ready();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Ready(bool ready);
 };
