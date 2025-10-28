@@ -1,0 +1,12 @@
+GameMode
+	ㄴ클라 접속 하면 ClientRPC 이용해서 ReadyWidget 생성
+GameState
+	ㄴ캐릭터를 선택하면 ReadyPlayer 생성하고 해당 Actor 를 가지고 있을 예정
+	ㄴ모든 Player 가 Ready를 했는지 여부
+Player(Actor)
+	ㄴ캐릭터 모양
+	ㄴReady 상태에 따라서 애니메이션 처리
+PlayerState
+	ㄴ모든 ServerRPC, MulticastRPC  처리
+ReadyWidget
+	ㄴ모든 입력처리 (캐릭터 선택, 레디, 시작)

@@ -22,4 +22,13 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	// SkeletalMeshComponent
+	UPROPERTY(EditAnywhere)
+	class USkeletalMeshComponent* mesh;
+	// Mesh 종류들
+	UPROPERTY(EditAnywhere)
+	TArray<class USkeletalMesh*> playerMeshArray;
+	// Mesh 설정 함수
+	void SetMesh(int32 idx);
 };
