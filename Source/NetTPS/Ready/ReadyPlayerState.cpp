@@ -3,6 +3,7 @@
 
 #include "ReadyPlayerState.h"
 
+#include "ReadyGameState.h"
 #include "ReadyPlayer.h"
 #include "ReadyWidget.h"
 
@@ -26,6 +27,9 @@ void AReadyPlayerState::MulticastRPC_SelectPlayer_Implementation(
 	if (readyPlayer == nullptr)
 	{
 		readyPlayer = GetWorld()->SpawnActor<AReadyPlayer>(readyPlayerFactory);
+		// game state 에게 readyPlayer 추가하고 위치 조정
+		AReadyGameState* gs = Cast<AReadyGameState>(GetWorld()->GetGameState());
+		gs->AddPlayer(readyPlayer);
 	}
 	// playerIdx 번째의 Mesh 로 설정
 	readyPlayer->SetMesh(playerIdx);

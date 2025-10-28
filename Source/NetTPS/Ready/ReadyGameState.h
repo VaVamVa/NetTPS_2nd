@@ -13,4 +13,11 @@ UCLASS()
 class NETTPS_API AReadyGameState : public AGameStateBase
 {
 	GENERATED_BODY()
+
+public:
+	// ReadyPlayer 들
+	UPROPERTY()
+	TArray<AActor*> allReadyPlayer;
+
+	void AddPlayer(AActor* player);
 };
