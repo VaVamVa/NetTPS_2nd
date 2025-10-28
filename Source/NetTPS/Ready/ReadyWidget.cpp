@@ -10,17 +10,6 @@ void UReadyWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	// 나의 PlayerState 가져오자.
-	APlayerController* pc = GetWorld()->GetFirstPlayerController();
-	if (pc)
-	{
-		ps = pc->GetPlayerState<AReadyPlayerState>();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Player State is NULL"));
-	}
-
 	// 버튼들 클릭했을 때 호출되는 함수 등록
 	btnPlayer01->OnClicked.AddDynamic(this, &UReadyWidget::OnClickPlayer01);
 	btnPlayer02->OnClicked.AddDynamic(this, &UReadyWidget::OnClickPlayer02);
@@ -30,6 +19,8 @@ void UReadyWidget::NativeConstruct()
 
 void UReadyWidget::OnClickPlayer01()
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnClickPlayer01"));
+
 	ps->ServerRPC_SelectPlayer(0);
 }
 

@@ -4,7 +4,14 @@
 #include "ReadyPlayerState.h"
 
 #include "ReadyPlayer.h"
-#include "Chaos/ChaosPerfTest.h"
+#include "ReadyWidget.h"
+
+void AReadyPlayerState::ClientRPC_MakeReadyUI_Implementation()
+{
+	UReadyWidget* readyUI = CreateWidget<UReadyWidget>(GetWorld(), readyWidget);
+	readyUI->ps = this;
+	readyUI->AddToViewport();
+}
 
 void AReadyPlayerState::ServerRPC_SelectPlayer_Implementation(int32 playerIdx)
 {
@@ -23,3 +30,5 @@ void AReadyPlayerState::MulticastRPC_SelectPlayer_Implementation(
 	// playerIdx 번째의 Mesh 로 설정
 	readyPlayer->SetMesh(playerIdx);
 }
+
+

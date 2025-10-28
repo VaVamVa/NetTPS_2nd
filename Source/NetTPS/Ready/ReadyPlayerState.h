@@ -15,6 +15,12 @@ class NETTPS_API AReadyPlayerState : public APlayerState
 	GENERATED_BODY()
 
 public:
+	// Ready Widget 만들어라
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UReadyWidget> readyWidget;
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_MakeReadyUI();
+	
 	// 캐릭터 선택 관련 RPC, 변수
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AReadyPlayer> readyPlayerFactory;
