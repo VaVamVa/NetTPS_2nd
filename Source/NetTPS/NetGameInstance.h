@@ -53,6 +53,12 @@ public:
 	FString StringBase64Encode(FString str);	
 	// 문자열을 base64 --> UTF-8 로 Decode 하는 함수
 	FString StringBase64Decode(FString str);
+
+	// 어떤 캐릭터를 선택 했는지
+	UPROPERTY()
+	TMap<FString, int32> selectCharacter;
+	void SetSelectCharacter(FString userName, int32 characterIdx);
+	int32 GetSelectCharacter(FString userName);
 };
 
 

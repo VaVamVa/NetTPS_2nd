@@ -18,7 +18,11 @@ public:
 	
 	/** Constructor */
 	ANetTPSGameMode();
+	
+	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) override;
 
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<APawn>> characterList;
 };
 
 

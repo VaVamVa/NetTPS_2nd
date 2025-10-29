@@ -20,8 +20,6 @@ void UReadyWidget::NativeConstruct()
 
 void UReadyWidget::OnClickPlayer01()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnClickPlayer01"));
-
 	ps->ServerRPC_SelectPlayer(0);
 }
 

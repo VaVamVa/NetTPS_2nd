@@ -29,6 +29,7 @@ void UNetGameInstance::Init()
 		// 세션 참여 성공시 호출되는 함수 등록
 		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(
 			this, &UNetGameInstance::OnJoinSessionComplete);
+		
 	}
 }
 
@@ -175,3 +176,13 @@ FString UNetGameInstance::StringBase64Decode(FString str)
 	return UTF8_TO_TCHAR(utf8String.c_str());
 }
 
+void UNetGameInstance::SetSelectCharacter(FString userName, int32 characterIdx)
+{
+	selectCharacter.Add(userName, characterIdx);
+}
+int32 UNetGameInstance::GetSelectCharacter(FString userName)
+{
+	int32* value = selectCharacter.Find(userName);
+	if (value == nullptr) return -1;
+	return *value;
+}

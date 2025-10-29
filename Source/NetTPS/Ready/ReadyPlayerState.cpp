@@ -3,6 +3,7 @@
 
 #include "ReadyPlayerState.h"
 
+#include "NetGameInstance.h"
 #include "ReadyGameState.h"
 #include "ReadyPlayer.h"
 #include "ReadyWidget.h"
@@ -16,6 +17,8 @@ void AReadyPlayerState::ClientRPC_MakeReadyUI_Implementation()
 
 void AReadyPlayerState::ServerRPC_SelectPlayer_Implementation(int32 playerIdx)
 {
+	// 해당 Player 가 어떤 캐릭터를 선택했는 가지고 있자.
+	GetGameInstance<UNetGameInstance>()->SetSelectCharacter(GetPlayerName(), playerIdx);
 	// 클라이언트들에게 playerIdx 전달
 	MulticastRPC_SelectPlayer(playerIdx);
 }
