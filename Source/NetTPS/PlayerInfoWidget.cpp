@@ -3,8 +3,19 @@
 
 #include "PlayerInfoWidget.h"
 
+#include "NetPlayerState.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerState.h"
+
+void UPlayerInfoWidget::Init(ANetPlayerState* ps)
+{
+	ps->onUpdatePlayerName.BindUObject(this, &UPlayerInfoWidget::UpdateName);
+	ps->onUpdateScore.BindUObject(this, &UPlayerInfoWidget::UpdateScore);
+	if (!uniqueNetId.IsValid())
+	{
+		uniqueNetId = ps->GetUniqueId();
+	}
+}
 
 void UPlayerInfoWidget::UpdateName(const FString& newName)
 {
@@ -14,12 +25,6 @@ void UPlayerInfoWidget::UpdateName(const FString& newName)
 void UPlayerInfoWidget::UpdateScore(const int32& newScore)
 {
 	playerScore->SetText(FText::AsNumber(newScore));
-}
-
-void UPlayerInfoWidget::SetPlayerId(const FUniqueNetIdRepl& playerUniqueNetID)
-{
-	if (uniqueNetId.IsValid()) {return;}
-	uniqueNetId = playerUniqueNetID;
 }
 
 bool UPlayerInfoWidget::IsEqualPlayer(const FUniqueNetIdRepl& playerUniqueNetID)

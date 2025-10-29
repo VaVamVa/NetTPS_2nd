@@ -39,4 +39,6 @@ public:
 	int32 posIdx;
 	// 위치 계산 함수
 	void CalculatePos(class ANetPlayer* player);
+
+	void UpdateChatSystem(const FString& inputChatText);
 };

@@ -7,6 +7,7 @@
 #include "NetPlayer.h"
 #include "Blueprint/UserWidget.h"
 #include "GameWidget.h"
+#include "NetPlayerState.h"
 #include "PlayerInfoWidget.h"
 #include "GameFramework/PlayerState.h"
 
@@ -75,4 +76,9 @@ void ANetGameState::CalculatePos(class ANetPlayer* player)
 	player->SetActorLocation(pos);
 	// posIdx 증가
 	posIdx++;
+}
+
+void ANetGameState::UpdateChatSystem(const FString& inputChatText)
+{
+	gameWidget->UpdateChat(inputChatText);
 }

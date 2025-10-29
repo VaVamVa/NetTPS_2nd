@@ -23,6 +23,7 @@ public class NetTPS : ModuleRules
 			"OnlineSubsystem",
 			"OnlineSubsystemSteam",
 			"SlateCore",
+			"AnimGraphRuntime"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });

@@ -3,6 +3,19 @@
 
 #include "NetPlayerState.h"
 
+#include "GameWidget.h"
+#include "NetGameState.h"
+
+void ANetPlayerState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsValid(gameWidget))
+	{
+		gameWidget->AddToViewport();
+	}
+}
+
 void ANetPlayerState::OnRep_PlayerName()
 {
 	Super::OnRep_PlayerName();
@@ -22,4 +35,18 @@ void ANetPlayerState::AddScore()
 	{
 		OnRep_Score();
 	}
+}
+
+void ANetPlayerState::SetUI(UUserWidget* inUI)
+{
+}
+
+void ANetPlayerState::ServerRPC_SendChat_Implementation(const FString& chat)
+{
+	NetMulticast_SendChat(chat);
+}
+
+void ANetPlayerState::NetMulticast_SendChat_Implementation(const FString& chat)
+{
+	GetWorld()->GetGameState<ANetGameState>()->gameWidget->UpdateChat(chat);
 }

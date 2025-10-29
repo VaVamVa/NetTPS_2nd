@@ -11,6 +11,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "MainWidget.h"
 #include "NetGameState.h"
+#include "NetPlayerState.h"
 #include "Camera/CameraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
@@ -87,15 +88,12 @@ void ANetPlayer::Tick(float DeltaSeconds)
 		UE_LOG(LogTemp, Warning, TEXT("J 키 떼었을 때"));
 	}
 
-	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustReleased(EKeys::Enter))
+	if (GetWorld()->GetFirstPlayerController()->WasInputKeyJustPressed(EKeys::Enter))
 	{
 		APlayerController* playerController = GetWorld()->GetFirstPlayerController();
 		UEditableTextBox* textBox = GetWorld()->GetGameState<ANetGameState>()->gameWidget->chatInputBox;
-		if (!textBox->HasUserFocus(playerController))
-		{
-			UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(playerController);
-			textBox->SetFocus();
-		}
+		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(playerController);
+		textBox->SetKeyboardFocus();
 	}
 
 	BillboardHPBar();
@@ -426,8 +424,11 @@ void ANetPlayer::DieProcess()
 		if (hasGun) TakeGun();
 		// 화면 흑백 처리
 		FollowCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 1);
+		// MainUI 삭제
+		mainUI->RemoveFromParent();
 		// 다시하기 버튼 보이게
-		mainUI->ShowBtnRetry();
+		ANetGameState* gs = Cast<ANetGameState>(GetWorld()->GetGameState());
+		gs->gameWidget->ShowBtnRetry(true);
 		// 마우스 보이게
 		GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
 	}

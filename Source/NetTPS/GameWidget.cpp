@@ -4,27 +4,36 @@
 #include "GameWidget.h"
 
 #include "ChatWidget.h"
+#include "NetPlayerState.h"
+#include "NetTPSPlayerController.h"
 #include "PlayerInfoWidget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Components/Border.h"
+#include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/ScrollBox.h"
 #include "Components/VerticalBox.h"
 #include "GameFramework/PlayerState.h"
-#include "Net/UnrealNetwork.h"
 
 void UGameWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	chatInputBox->OnTextCommitted.AddDynamic(this, &UGameWidget::UGameWidget::OnChatInputTextCommited);
+	chatInputBox->OnTextCommitted.AddDynamic(this, &UGameWidget::OnChatInputTextCommited);
 	chatInputBox->SetClearKeyboardFocusOnCommit(true);
+
+	inGameScreen->OnMouseButtonDownEvent.BindDynamic(this, &UGameWidget::OnPointerEvent);
+
+	// BtnRetry 가져오자.
+	//btnRetry = Cast<UButton>(GetWidgetFromName(TEXT("BtnRetry")));
+	// BtnRetry 클릭했을 때 호출되는 함수 등록
+	btnRetry->OnClicked.AddDynamic(this, &UGameWidget::OnRetry);
 }
 
 void UGameWidget::AddPlayerInfo(APlayerState* playerState)
 {
 	UPlayerInfoWidget* infoWidget = CreateWidget<UPlayerInfoWidget>(playerInfoContainer, playerInfoWidgetFactory);
-	infoWidget->SetPlayerId(playerState->GetUniqueId());
-	infoWidget->UpdateName(playerState->GetName());
+	infoWidget->Init(Cast<ANetPlayerState>(playerState));
 	playerInfoContainer->AddChildToVerticalBox(infoWidget);
 }
 
@@ -57,7 +66,6 @@ void UGameWidget::AddScore(APlayerState* playerState)
 			{
 				playerState->OnRep_Score();
 			}
-			infoWidget->UpdateScore(playerState->GetScore());
 			return;
 		}
 	}
@@ -68,23 +76,62 @@ void UGameWidget::AddScore(APlayerState* playerState)
 
 void UGameWidget::OnChatInputTextCommited(const FText& inputText, ETextCommit::Type commitType)
 {
-	if (commitType == ETextCommit::Type::OnEnter && !inputText.IsEmpty())
+	if (commitType == ETextCommit::Type::OnEnter && !inputText.IsEmptyOrWhitespace())
 	{
 		const FString chat = GetOwningPlayerState()->GetPlayerName() + " : " + inputText.ToString();
+		APlayerController* pc = GetWorld()->GetFirstPlayerController();
+		ANetPlayerState* ps = pc->GetPlayerState<ANetPlayerState>();
+		ps->ServerRPC_SendChat(chat);
 		
-		NetMulticastRPC_UpdateChat(chat);
 		chatInputBox->SetText(FText());
 	}
 	FSlateApplication::Get().ClearKeyboardFocus(EFocusCause::Cleared);
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(GetWorld()->GetFirstPlayerController());
 }
 
-void UGameWidget::NetMulticastRPC_UpdateChat_Implementation(const FString& inStr)
+void UGameWidget::UpdateChat(const FString& inStr)
 {
 	UChatWidget* chatLine = CreateWidget<UChatWidget>(chatScroll, chatTextWidgetFactory);
+	float scrollOffset = chatScroll->GetScrollOffset();
+	float scrollOffsetOfEnd = chatScroll->GetScrollOffsetOfEnd();
+	
 	chatLine->SetChatText(FText::FromString(inStr));
-	chatScroll->ScrollToEnd();
 	chatScroll->AddChild(chatLine);
+	
+	if (scrollOffset == scrollOffsetOfEnd)
+	{
+		// 개행 채팅 인식 interval 기다리기
+		GetWorld()->GetTimerManager().SetTimerForNextTick(
+			[this]() -> void
+			{
+				chatScroll->ScrollToEnd();
+			}
+		);
+		
+	}
+}
+
+FEventReply UGameWidget::OnPointerEvent(FGeometry myGeometry, const FPointerEvent& inPointerEvent)
+{
+	return {};
+}
+
+void UGameWidget::OnRetry()
+{
+	// 관전자로 전환
+	ANetTPSPlayerController* pc = Cast<ANetTPSPlayerController>(GetWorld()->GetFirstPlayerController());
+	// [서버] 에게 관전자로 변경 요청
+	pc->ServerRPC_ChangeToSpectator();
+	// 마우스 보이지 않게
+	pc->SetShowMouseCursor(false);
+	// 다시하기 버튼 안보이게
+	ShowBtnRetry(false);
+}
+
+void UGameWidget::ShowBtnRetry(const bool& bVisible)
+{
+	// BtnRetry 보이게
+	btnRetry->SetVisibility(bVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 }
 
 

@@ -6,11 +6,13 @@
 #include "Blueprint/UserWidget.h"
 #include "GameWidget.generated.h"
 
+class UBorder;
 class UScrollBox;
 class UChatWidget;
 class UEditableTextBox;
 class UVerticalBox;
 class UPlayerInfoWidget;
+class UButton;
 /**
  * 
  */
@@ -41,6 +43,21 @@ public:
 
 	UFUNCTION()
 	void OnChatInputTextCommited(const FText& inputText, ETextCommit::Type commitType);
-	UFUNCTION(NetMulticast, Reliable)
-	void NetMulticastRPC_UpdateChat(const FString& inStr);
+	UFUNCTION()
+	void UpdateChat(const FString& inStr);
+
+	UPROPERTY(meta=(BindWidget))
+	UBorder* inGameScreen;
+	
+	UFUNCTION()
+	FEventReply OnPointerEvent(FGeometry myGeometry, const FPointerEvent& inPointerEvent);
+
+	// BtnRetry 담을 변수
+	UPROPERTY(meta=(BindWidget))
+	class UButton* btnRetry;
+	// BtnRetry 클릭했을 때 호출되는 함수
+	UFUNCTION()
+	void OnRetry();
+	// BtnRetry 활성화 시켜주는 함수
+	void ShowBtnRetry(const bool& bVisible);
 };
