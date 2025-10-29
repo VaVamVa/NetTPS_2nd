@@ -11,4 +11,12 @@ public:
 	virtual void OnEnter();
 	virtual void OnUpdate(float deltaTime);
 	virtual void OnExit();
+
+	// 대기 시간
+	float delayTime;
+	// 현재 시간
+	float currTime;
+	// delayTime 체크 함수
+	bool IsDelayComplete();
+
 };

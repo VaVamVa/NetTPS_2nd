@@ -41,9 +41,12 @@ public:
 	TSharedPtr<class BossStateBase> currStateClass;
 	// 현재 보스 상태
 	EBossState currState;
-
 	// 상태 전환 함수
 	void ChangeState(EBossState newState);
+
+	// 타겟 (Player)
+	UPROPERTY()
+	class ANetTPSCharacter* target;
 };
 
 

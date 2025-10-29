@@ -47,8 +47,13 @@ void ABoss::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void ABoss::ChangeState(EBossState newState)
 {
+	UE_LOG(LogTemp, Warning,
+		TEXT("%s -----> %s"),
+		*UEnum::GetValueAsString(currState),
+		*UEnum::GetValueAsString(newState));
+	
 	// 이전 상태 OnExit 함수 호출
-	currStateClass->OnExit();
+	if (currStateClass != nullptr) currStateClass->OnExit();
 	// 현재 상태를 newState 상태로 설정
 	currState = newState;
 	currStateClass = stateList[(int)newState];
